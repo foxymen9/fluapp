@@ -1,23 +1,14 @@
 import React, { Component } from 'react';
 import {
-  StyleSheet,
   Text,
   View,
   Image,
   TouchableOpacity,
-  TouchableHighlight,
   StatusBar,
-  Keyboard,
-  AsyncStorage,
-  FlatList,
   SectionList,
+  ScrollView,
 } from 'react-native';
-
 import { Actions } from 'react-native-router-flux';
-import { TextField } from 'react-native-material-textfield';
-
-import {Switch} from '@common/components/switch/index';
-
 
 import * as commonStyles from '@common/styles/commonStyles';
 import globalStyle from '@common/styles/commonStyles';
@@ -27,6 +18,7 @@ import { styles } from './styles';
 import SymptomItem from '@components/symptomItem';
 
 const backImage = require('@common/assets/imgs/ico_nav_back_white.png');
+
 
 export default class RequestDetail extends Component {
   
@@ -69,12 +61,13 @@ export default class RequestDetail extends Component {
     this.state = {
       symptomList: symptomList
     };
-    // this.onReset();
   }
+
 
   componentDidMount() {
     Actions.refresh({onRight: this.onReset.bind(this)})
   }
+
 
   onReset() {
     let { symptomList } = this.state;
@@ -85,9 +78,11 @@ export default class RequestDetail extends Component {
     this.setState({symptomList});
 	}
 
+
   onSubmit() {
   }
 
+  
   renderSectionHeader(section) {
     return(
       <View style={styles.sectionHeaderContainer}>
@@ -110,35 +105,41 @@ export default class RequestDetail extends Component {
     return (
       <View style={styles.container}>
         <StatusBar barStyle='light-content'/>
-        <View style={styles.mainContentContainer}>
-          <View style={styles.textWrapper}>
-            <Text style={styles.textPoint}>Requested to: </Text>
-            <Text style={styles.textName}>Dr.{selectedRequest.name}</Text>
+        <ScrollView>
+          <View style={styles.mainContentContainer}>
+            <View style={styles.textWrapper}>
+              <Text style={styles.textPoint}>Requested to: </Text>
+              <Text style={styles.textName}>Dr.{selectedRequest.name}</Text>
+            </View>
+            <View style={styles.textWrapper}>
+              <Text style={styles.textPoint}>Status:</Text>
+              <Text style={styles.textName}>{selectedRequest.status}</Text>
+            </View>
+            <View style={styles.textWrapper}>
+              <Text style={styles.textPoint}>Recommendation: </Text>
+              <Text style={styles.textName}>FluApp</Text>
+            </View>
+            <SectionList
+              showsVerticalScrollIndicator={false}
+              keyExtractor={(item, index) => index}
+              renderSectionHeader={({section}) => this.renderSectionHeader(section)}          
+              renderItem={({item, index, section}) => this.renderItem(item, index, section)}
+              sections={[
+                {
+                  key: 'Symptoms',
+                  data: symptomList,
+                },
+              ]}
+            />
           </View>
-          <View style={styles.textWrapper}>
-            <Text style={styles.textPoint}>Status:</Text>
-            <Text style={styles.textName}>{selectedRequest.status}</Text>
-          </View>
-          <SectionList
-            showsVerticalScrollIndicator={false}
-            keyExtractor={(item, index) => index}
-            renderSectionHeader={({section}) => this.renderSectionHeader(section)}          
-            renderItem={({item, index, section}) => this.renderItem(item, index, section)}
-            sections={[
-              {
-                key: 'Symptoms',
-                data: symptomList,
-              },
-            ]}
-          />
-        </View>
-        { /*<TouchableHighlight
-          style={[globalStyle.buttonGreenWrapper, globalStyle.buttonBottom]}
-          onPress={this.onSubmit.bind(this)}
-          underlayColor={commonStyles.greenActiveBackgroundColor}
-        >
-          <Text style={globalStyle.buttonText}></Text>
-        </TouchableHighlight>*/ }
+          { /*<TouchableHighlight
+            style={[globalStyle.buttonGreenWrapper, globalStyle.buttonBottom]}
+            onPress={this.onSubmit.bind(this)}
+            underlayColor={commonStyles.greenActiveBackgroundColor}
+          >
+            <Text style={globalStyle.buttonText}></Text>
+          </TouchableHighlight>*/ }
+        </ScrollView>
       </View>
     );
   }

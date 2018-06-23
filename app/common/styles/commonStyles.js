@@ -36,8 +36,8 @@ function getScreenWidth() {
   }
 }
 
-export let screenHeight = getScreenHeight();
-export let screenWidth = getScreenWidth();
+export const screenHeight = getScreenHeight();
+export const screenWidth = getScreenWidth();
 
 export const menuHeight = 30 + STATUSBAR_HEIGHT;
 export const tabBarHieght = 45;

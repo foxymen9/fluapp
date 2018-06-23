@@ -144,8 +144,9 @@ export const styles = StyleSheet.create({
 		shadowRadius: 4,
   },
   sectionHeaderContainer: {
-    marginTop: 28,
-    marginBottom: 19,
+    paddingTop: 28,
+    paddingBottom: 10,
+    backgroundColor: commonStyles.whiteColor,
   },
   textSectionHeaderTitle: {
     color: commonStyles.mainTextColor,

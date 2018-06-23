@@ -7,18 +7,16 @@ import {
   TouchableOpacity,
   TouchableHighlight,
   StatusBar,
-  KeyboardAvoidingView,
   Animated,
 } from 'react-native';
 import PropTypes from 'prop-types';
+
 import { Actions } from 'react-native-router-flux';
 import { Dropdown } from 'react-native-material-dropdown';
 import ImagePicker from 'react-native-image-picker';
 import { TextField } from 'react-native-material-textfield';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import EmailValidator from 'email-validator';
-
-import { TextInputMask } from 'react-native-masked-text';
 
 import * as commonStyles from '@common/styles/commonStyles';
 import globalStyle from '@common/styles/commonStyles';
@@ -27,15 +25,11 @@ import { styles } from './styles';
 import {calculateYearDiff} from '@common/helpers/helpers';
 
 const cameraImage = require('@common/assets/imgs/ico_general_small_camera_grey.png');
-const backImage = require('@common/assets/imgs/ico_nav_back_white.png');
-
 const greenTickImage = require('@common/assets/imgs/green_tick.png');
 const greyTickImage = require('@common/assets/imgs/gray_tick.png');
-const pwdIcon = require('@common/assets/imgs/password_manager.png');
-
-const closeImage = require('@common/assets/imgs/ico_green_close.png');
-
 const ico_avatar_lisa = require('@common/assets/imgs/avatars/ico_avatar_lisa.png');
+const backImage = require('@common/assets/imgs/ico_nav_back_white.png');
+const closeImage = require('@common/assets/imgs/ico_green_close.png');
 
 const TitleData = [
   { value: 'Mr.' },
@@ -45,6 +39,7 @@ const TitleData = [
 const displayNames = {'firstName': 'First name', 'lastName': 'Last name', 'dateBirth': 'Date of birth', 'password': 'Password', 'confirmPassword':'Password confirmation', 'emailAddress': 'Email address'};
 const refNames = ['firstName', 'lastName', 'dateBirth', 'password', 'emailAddress', 'confirmPassword'];
 const unrequiredRefNames = ['phoneNumber'];
+
 
 export default class Profile extends Component {
 
@@ -86,14 +81,11 @@ export default class Profile extends Component {
     selectedUserName: '',
   }
 
-  componentDidMount() {
-    Actions.refresh({onLeft: this.onBack.bind(this)})
-    Actions.refresh({onRight: this.onEdit.bind(this)})
-  }
 
   onBack() {
     Actions.pop();
   }
+
 
   onEdit() {
     // let { editable } = this.state;
@@ -103,16 +95,6 @@ export default class Profile extends Component {
 
   constructor(props) {
     super(props);
-
-    // const arrayName = props.selectedUserName.split(" ");
-    // let firstName = "";
-    // let lastName = "";
-    // if (arrayName.length > 0) {
-    //   firstName = arrayName[0];
-    // }
-    // if (arrayName.length > 1) {
-    //   lastName = arrayName[1];
-    // }
 
     this.state = {
       selectedImageFile: null,
@@ -136,6 +118,19 @@ export default class Profile extends Component {
     this.confirmPasswordRef = this.updateRef.bind(this, 'confirmPassword');
   }
 
+
+  componentDidMount() {
+    this._isMounted = true;
+    Actions.refresh({onLeft: this.onBack.bind(this)})
+    Actions.refresh({onRight: this.onEdit.bind(this)})
+  }
+
+
+  componentWillUnmount() {
+    this._isMounted = false;
+  }
+
+
   checkCapitalLetter(text) {
     // match all capital letters and store in array letters
     const letters = text.match(/[A-Z]/g);
@@ -158,6 +153,7 @@ export default class Profile extends Component {
       return true;
     }    
   }
+
 
   onChangeNewPassword(text) {
     this.setState({newPassword: text});
@@ -203,10 +199,9 @@ export default class Profile extends Component {
     }
   }
 
+
   validateInputs() {
     let errors = {};
-
-
     const {isEightCharacters, isCapitalLetter, isOneNumber, isMatch} = this.state;
 
     if (!isEightCharacters || !isCapitalLetter || !isOneNumber) {
@@ -256,14 +251,15 @@ export default class Profile extends Component {
     }
   }
 
+
   formatDate (number) {
     let x = number.replace(/\D/g, '').match(/(\d{0,2})(\d{0,2})(\d{0,4})/);
     number = !x[2] ? x[1] : x[1] + '/' + x[2] + (x[3] ? '/' + x[3] : '');
     this.setState({dateBirth:number});
   }
 
-  isValidDate(dateString)
-  {
+
+  isValidDate(dateString) {
     // First check for the pattern
     if(!/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(dateString))
       return false;
@@ -288,9 +284,11 @@ export default class Profile extends Component {
     return day > 0 && day <= monthLength[month - 1];
   };
 
+
   updateRef(name, ref) {
     this[name] = ref;
   }
+
 
   onFocus() {
     let { errors = {} } = this.state;
@@ -306,6 +304,7 @@ export default class Profile extends Component {
     this.setState({ errors });
   }
 
+
   onChangeText(text) {
     refNames
       .map((name) => ({ name, ref: this[name] }))
@@ -316,10 +315,12 @@ export default class Profile extends Component {
       });
   }
 
+
   onChangeTitle(text) {
     this.setState({title: text});
   }
 
+  
   onRemoveImage() {
     this._isMounted && this.setState((state) => {
       state.currentImage = cameraImage;
@@ -328,61 +329,48 @@ export default class Profile extends Component {
     });
   }
 
+
   get renderCameraImage() {
-    if (this.state.currentImage === cameraImage && this.state.editable == true) {
-      return (
+    return (
+      <View style={styles.imageContainer}>
         <TouchableOpacity 
           style={styles.cameraButtonWrapper}
           onPress={this.onOpenCamera.bind(this)}
+          activeOpacity={this.state.editable ? 0.6 : 1}
         >
-          <Image source={this.state.currentImage} style={styles.imageCamera} resizeMode="stretch" />
-        </TouchableOpacity> 
-      );
-    }
-    else if (this.state.currentImage === cameraImage && this.state.editable == false) {
-      return (
-        <View style={styles.cameraButtonWrapper} >
-          <Image source={this.state.currentImage} style={styles.imageCamera} resizeMode="stretch" />
-        </View> 
-      );
-    }
+          <Image 
+            source={this.state.currentImage} 
+            style={this.state.currentImage === cameraImage ? styles.imageCamera : styles.imageTake} 
+            resizeMode="cover" 
+          />
 
-    return (
-      <View style={styles.imageContainer}>
-        <Image source={this.state.currentImage} style={styles.imageTake} resizeMode="cover" />
-        {
-          this.state.editable ?
-          <TouchableOpacity 
-            style={styles.closeButtonWrapper}
-            onPress={this.onRemoveImage.bind(this)}
-          >
-            <Image source={closeImage} style={styles.imageClose} resizeMode="contain" />
-          </TouchableOpacity>
-          :
-          null
-        }
+          {
+            this.state.currentImage !== cameraImage && this.state.editable == true ?
+              <TouchableOpacity 
+                style={styles.closeButtonWrapper}
+                onPress={this.onRemoveImage.bind(this)}
+              >
+                <Image source={closeImage} style={styles.imageClose} resizeMode="contain" />
+              </TouchableOpacity>
+            : 
+              null
+          }
+        </TouchableOpacity> 
       </View>
     );    
   }
 
-  onOpenCamera() {    
-    let options;
-
-    if (this.state.selectedImageFile == null) {
-      options = {
-        quality: 1.0,
-        storageOptions: {
-          skipBackup: true,
-        }
-      };
-    } else {
-      options = {
-        quality: 1.0,
-        storageOptions: {
-          skipBackup: true,
-        },
-      };
+  
+  onOpenCamera() {
+    if (this.state.editable == false) {
+      return;
     }
+    const options = {
+      quality: 1.0,
+      storageOptions: {
+        skipBackup: true,
+      }
+    };
     
     ImagePicker.showImagePicker(options, (response) => {
 
@@ -406,7 +394,7 @@ export default class Profile extends Component {
     
   onContinue() {
     const {firstName, lastName, phoneNumber, dateBirth, emailAddress} = this.state;
-    Actions.pop();
+    Actions.Payment({isNew: false});
   }
 
 
@@ -717,7 +705,7 @@ export default class Profile extends Component {
             onPress={()=>this.onContinue()}
             underlayColor={commonStyles.greenActiveBackgroundColor}
           >
-            <Text style={globalStyle.buttonText}>Save</Text>
+            <Text style={globalStyle.buttonText}>Continue</Text>
           </TouchableHighlight>
           :
           <TouchableHighlight 
@@ -725,7 +713,7 @@ export default class Profile extends Component {
             onPress={()=>this.onContinue()}
             underlayColor={commonStyles.lightGreyButtonActiveColor}
           >
-            <Text style={globalStyle.buttonText}>Save</Text>
+            <Text style={globalStyle.buttonText}>Continue</Text>
           </TouchableHighlight>
         }
       </View>

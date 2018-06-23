@@ -64,7 +64,7 @@ export const styles = StyleSheet.create({
   textSectionHeaderTitle: {
     color: commonStyles.mainTextColor,
     fontFamily: 'Averta',
-    fontSize: 25,
+    fontSize: 22,
     fontWeight: 'bold',
     backgroundColor: 'transparent',
   },  

@@ -6,7 +6,7 @@ import * as commonColors from '@common/styles/commonColors';
 export const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: commonStyles.whiteColor,
   },
   separator: {
     backgroundColor: commonStyles.greyTonicColor,
@@ -43,7 +43,7 @@ export const styles = StyleSheet.create({
     backgroundColor: 'transparent',
   },
     textTitle: {
-    color: '#fff',
+    color: commonStyles.whiteColor,
     fontFamily: 'Averta',
     fontSize: 16,
     fontWeight: '600',
@@ -101,7 +101,7 @@ export const styles = StyleSheet.create({
     // marginBottom: 10,
   },
   textContinue: {
-    color: '#fff',
+    color: commonStyles.whiteColor,
     fontFamily: 'Averta',
     fontSize: 16,
     fontWeight: '600',
@@ -122,14 +122,14 @@ export const styles = StyleSheet.create({
     backgroundColor: 'transparent',  
   },
   textReset: {
-    color: '#fff',
+    color: commonStyles.whiteColor,
     fontFamily: 'Averta',
     fontSize: 16,
     backgroundColor: 'transparent',
   },
   flatListContainer: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: commonStyles.whiteColor,
     paddingHorizontal: 20,
     
     shadowColor: commonStyles.lightGreyColor,
@@ -138,8 +138,9 @@ export const styles = StyleSheet.create({
 		shadowRadius: 4,
   },
   sectionHeaderContainer: {
-    marginTop: 28,
-    marginBottom: 19,
+    paddingTop: 28,
+    paddingBottom: 10,
+    backgroundColor: commonStyles.whiteColor,
   },
   textSectionHeaderTitle: {
     color: commonStyles.mainTextColor,
@@ -151,20 +152,20 @@ export const styles = StyleSheet.create({
   textName: {
     color: commonStyles.primaryGreenColor,
     fontFamily: 'Averta',
-    fontSize: 22,
+    fontSize: 20,
     fontWeight: 'bold',
     backgroundColor: 'transparent',
   },
   textPoint: {
     color: commonStyles.mainTextColor,
     fontFamily: 'Averta',
-    fontSize: 22,
+    fontSize: 20,
     fontWeight: 'bold',
     backgroundColor: 'transparent',
   },
   textWrapper: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    paddingVertical: 20,
+    paddingVertical: 16,
   },
 });

@@ -10,7 +10,8 @@ import {
   StyleSheet,
   Text,
   View,
-  Linking
+  Linking,
+  AsyncStorage,
 } from 'react-native';
 
 import { createStore, applyMiddleware, combineReducers } from 'redux';
@@ -25,6 +26,7 @@ const reducer = combineReducers(reducers);
 const store = createStoreWithMiddleware(reducer);
 
 import * as commonStyles from '@common/styles/commonStyles';
+import Tutorial from './views/pages/Tutorial';
 import Login from './views/pages/Login';
 import Signup from './views/pages/Signup';
 import Payment from './views/pages/Payment';
@@ -37,20 +39,45 @@ import StartScreen from './startScreen';
 export default class App extends Component {
   constructor(props) {
     super(props);
+
+    this.state = {
+      initialized: false,
+      isShowTutorial: false,
+    }
+  }
+
+  componentDidMount() {
+    AsyncStorage.getItem('ShowedTutorial', (error, result) => {
+      if (result === 'true') {
+        this.setState({
+          initialized: true,
+          isShowTutorial : false,
+        });
+      } else {
+        this.setState({
+          initialized: true,
+          isShowTutorial : true,
+        });
+      }
+    });
+    
   }
 
   render() {
+    if (!this.state.initialized) {
+      return null;
+    }
+
     const scenes = Actions.create(
-      <Scene key="root" navigationBarStyle={styles.navigationBarStyle} hideNavBar>
-        <Scene key="Login" component={ Login } hideNavBar panHandlers={null} initial/>
-        <Stack key="Register" navigationBarStyle={styles.navigationBarStyle} hideNavBar>
-          <Scene key="Signup" component={ Signup } hideNavBar = { false } panHandlers={null} />
-          <Scene key="Payment" component={ Payment } hideNavBar = { false } panHandlers={null} />
-        </Stack>
-        <Scene key="Main" component={ Main } hideNavBar = { false } panHandlers={null} />
-        <Scene key="Profile" component={ Profile } hideNavBar = { false } panHandlers={null} />
-        <Scene key="RequestDetail" component={ RequestDetail } hideNavBar = { false } panHandlers={null} />
-        <Scene key="NewRequest" component={ NewRequest } hideNavBar = { false } panHandlers={null} />
+      <Scene key="root" navigationBarStyle={styles.navigationBarStyle} >
+        <Scene key="Login" component={Login} hideNavBar />
+        <Scene key="Tutorial" component={Tutorial} hideNavBar initial={this.state.isShowTutorial}/>
+        <Scene key="Signup" component={Signup} />
+        <Scene key="Payment" component={Payment} />
+        <Scene key="Main" component={Main} />
+        <Scene key="Profile" component={Profile} />
+        <Scene key="RequestDetail" component={RequestDetail} />
+        <Scene key="NewRequest" component={NewRequest} />
       </Scene>
     );
 
@@ -67,10 +94,5 @@ const styles = StyleSheet.create({
     backgroundColor: commonStyles.themeColor,
     borderBottomWidth: 0,
     height: 68,
-  },
-  navigationBarStyle2: {
-    backgroundColor: '#fff',
-    borderBottomWidth: 1,
-    borderColor: commonStyles.lineColor,
   },
 });

@@ -58,8 +58,8 @@ export const styles = StyleSheet.create({
     lineHeight: 42,
     fontWeight: 'bold',
     backgroundColor: 'transparent',
-    marginBottom: 31,
-    marginTop: 95,
+    marginVertical: 30,
+    // marginTop: 95,
   },
   bottomContainer: {
   },
@@ -84,5 +84,9 @@ export const styles = StyleSheet.create({
   codeModeWrapper: {
     // flex: 1,
     marginBottom: 10,
+  },
+  imageTop: {
+    width: commonStyles.screenWidth,
+    height: commonStyles.screenWidth * 0.666,
   },
 });

@@ -54,6 +54,7 @@ const recentConnections = [
     phoneNumber: 'lisachu@gmail.com',
     amount: '',
     active: false,
+    status: commonStrings.TestRequestReceived,
   },
   {
     avatar: ico_avatar_james_lovett,
@@ -61,6 +62,7 @@ const recentConnections = [
     phoneNumber: 'james_lovett@gmail.com',
     amount: '',
     active: false,
+    status: commonStrings.DriverEnrouteToPatient,
   },
   {
     avatar: ico_avatar_07,
@@ -68,6 +70,7 @@ const recentConnections = [
     phoneNumber: 'ty@cloudadvisory.io',
     amount: '',
     active: false,
+    status: commonStrings.DriverEnrouteToLab,
   },
 ];
 
@@ -78,6 +81,7 @@ const friendsConections = [
     phoneNumber: 'orrin.swift@yahoo.com',
     amount: '',
     active: false,
+    status: commonStrings.TestRequestReceived,
   },
   {
     avatar: ico_avatar_04,
@@ -85,6 +89,7 @@ const friendsConections = [
     phoneNumber: 'chinooklover@hotmail.com',
     amount: '',
     active: false,
+    status: commonStrings.DriverEnrouteToPatient,
   },
   {
     avatar: ico_avatar_allan,
@@ -92,6 +97,7 @@ const friendsConections = [
     phoneNumber: 'lisa.allan@alexis.ca',
     amount: '',
     active: false,
+    status: commonStrings.DriverEnrouteToLab,
   },
 ];
 
@@ -158,7 +164,7 @@ export default class Main extends Component {
       name: item.name,
       phoneNumber: item.phoneNumber,
       amount: item.active ? item.amount : 0,
-      status: section.key,
+      status: item.status,
     };
     Actions.RequestDetail({selectedRequest: param});
   }
@@ -199,23 +205,11 @@ export default class Main extends Component {
             renderItem={({item, index, section}) => this.renderItem(item, index, section)}
             sections={[
               {
-                key: commonStrings.statusArray[0],
+                key: commonStrings.ActiveRequests,
                 data: recentConnections,
               },
               {
-                key: commonStrings.statusArray[1],
-                data: friendsConections,
-              },
-              {
-                key: commonStrings.statusArray[2],
-                data: friendsConections,
-              },
-              {
-                key: commonStrings.statusArray[3],
-                data: friendsConections,
-              },
-              {
-                key: commonStrings.statusArray[4],
+                key: commonStrings.CompletedRequests,
                 data: friendsConections,
               },
             ]}

@@ -27,6 +27,7 @@ import { styles } from './styles';
 import {calculateYearDiff} from '@common/helpers/helpers';
 
 const backImage = require('@common/assets/imgs/ico_nav_back_white.png');
+const topLogoImage = require('@common/assets/imgs/login_logo.png');
 
 const displayNames = {'email': 'Email', 'password': 'Password'};
 const refNames = ['email', 'password'];
@@ -129,8 +130,7 @@ export default class Login extends Component {
       });
     this.setState({ errors });
     if (Object.keys(errors).length === 0 && errors.constructor === Object) {
-      this.onContinue();
-    } else {
+      this.onSignIn();
     }
   }
 
@@ -173,7 +173,7 @@ export default class Login extends Component {
   onChangePassword(text) {
   }
 
-  onContinue() {
+  onSignIn() {
     Actions.Main();
   }
 
@@ -189,79 +189,83 @@ export default class Login extends Component {
     return (
       <View style={styles.container}>
         <StatusBar barStyle='dark-content' />
-        <KeyboardAwareScrollView style={styles.mainContentContainer}>
-          <Text style={styles.textDescription} numberOfLines={2}>Flu app</Text>
-          <View style={styles.textWrapper}>
-            <TextField
-              key='email'
-              ref={this.emailRef}
-              label={'Email address'}
-              keyboardType='email-address'
-              autoCapitalize='none'
-              fontSize={15}
-              fontFamily={'Averta'}
-              fontWeight={'bold'}
-              returnKeyType='next'
-              tintColor = {commonStyles.primaryGreenColor}
-              titleTextStyle={globalStyle.tfTitleStyle}
-              labelTextStyle={globalStyle.tfLabelStyle}
-              affixTextStyle={globalStyle.tfAffixStyle}
-              error={errors.email}
-              errorColor={commonStyles.themeColor}
-              autoCorrect={false}
-              baseColor={commonStyles.lightGreyColor}
-              onChangeText={() => this.onChangeText()}
-              onFocus={() => this.onFocus()}
-              value={data.email}
-              onSubmitEditing={() => this.password.focus()}
-            />
+        <KeyboardAwareScrollView
+          showsVerticalScrollIndicator={true}
+        >
+          <Image source={topLogoImage} style={styles.imageTop} resizeMode="contain" />
+          <View  style={styles.mainContentContainer}>
+            <Text style={styles.textDescription} numberOfLines={2}>Flu app</Text>
+            <View style={styles.textWrapper}>
+              <TextField
+                key='email'
+                ref={this.emailRef}
+                label={'Email address'}
+                keyboardType='email-address'
+                autoCapitalize='none'
+                fontSize={15}
+                fontFamily={'Averta'}
+                fontWeight={'bold'}
+                returnKeyType='next'
+                tintColor = {commonStyles.primaryGreenColor}
+                titleTextStyle={globalStyle.tfTitleStyle}
+                labelTextStyle={globalStyle.tfLabelStyle}
+                affixTextStyle={globalStyle.tfAffixStyle}
+                error={errors.email}
+                errorColor={commonStyles.themeColor}
+                autoCorrect={false}
+                baseColor={commonStyles.lightGreyColor}
+                onChangeText={() => this.onChangeText()}
+                onFocus={() => this.onFocus()}
+                value={data.email}
+                onSubmitEditing={() => this.password.focus()}
+              />
+            </View>
+            <View style={styles.textWrapper}>
+              <TextField
+                key='password'
+                ref={this.passwordRef}
+                label={'Password'}
+                fontSize={15}
+                fontFamily={'Averta'}
+                fontWeight={'bold'}
+                secureTextEntry={true}
+                returnKeyType='go'
+                tintColor = {commonStyles.primaryGreenColor}
+                titleTextStyle={globalStyle.tfTitleStyle}
+                labelTextStyle={globalStyle.tfLabelStyle}
+                affixTextStyle={globalStyle.tfAffixStyle}
+                error={errors.password}
+                errorColor={commonStyles.themeColor}
+                autoCorrect={false}
+                baseColor={commonStyles.lightGreyColor}
+                value={this.state.password}
+                onChangeText={this.onChangePassword.bind(this)}
+                onFocus={() => this.onFocus()}
+                onSubmitEditing={() => this.validateInputs()}
+              />
+              <TouchableOpacity
+                style = {styles.forgotWrapper}
+                onPress={() => this.onForgotPassword()}>
+                <Text style={styles.textForgot}>Forgot?</Text>
+              </TouchableOpacity>
+            </View>
+            <View style={styles.codeModeWrapper}>
+              <TouchableOpacity
+                style={styles.modeContainer}
+                onPress={()=>this.onSignup()}
+              >
+                <View style={styles.textResendWrapper}>
+                  <Text style={styles.textResend}>Sign up</Text>
+                </View>
+              </TouchableOpacity>
+            </View>
+            <View style={{flex: 1}} />
           </View>
-          <View style={styles.textWrapper}>
-            <TextField
-              key='password'
-              ref={this.passwordRef}
-              label={'Password'}
-              fontSize={15}
-              fontFamily={'Averta'}
-              fontWeight={'bold'}
-              secureTextEntry={true}
-              returnKeyType='go'
-              tintColor = {commonStyles.primaryGreenColor}
-              titleTextStyle={globalStyle.tfTitleStyle}
-              labelTextStyle={globalStyle.tfLabelStyle}
-              affixTextStyle={globalStyle.tfAffixStyle}
-              error={errors.password}
-              errorColor={commonStyles.themeColor}
-              autoCorrect={false}
-              baseColor={commonStyles.lightGreyColor}
-              value={this.state.password}
-              onChangeText={this.onChangePassword.bind(this)}
-              onFocus={() => this.onFocus()}
-              onSubmitEditing={() => this.validateInputs()}
-            />
-            <TouchableOpacity
-              style = {styles.forgotWrapper}
-              onPress={() => this.onForgotPassword()}>
-              <Text style={styles.textForgot}>Forgot?</Text>
-            </TouchableOpacity>
-          </View>
-          <View style={styles.codeModeWrapper}>
-            <TouchableOpacity
-              style={styles.modeContainer}
-              onPress={()=>this.onSignup()}
-            >
-              <View style={styles.textResendWrapper}>
-                <Text style={styles.textResend}>Sign up</Text>
-              </View>
-            </TouchableOpacity>
-          </View>
-          <View style={{flex: 1}} />
         </KeyboardAwareScrollView>
         <Animated.View style={[styles.bottomContainer, {marginBottom: this.state.keyboardHeight}]}>
           <TouchableHighlight 
             style={[globalStyle.buttonGreenWrapper, globalStyle.buttonBottom]}
             onPress={() => this.validateInputs()}
-            // onPress={() => this.onContinue()}
             underlayColor={commonStyles.greenActiveBackgroundColor}
           >
             <Text style={globalStyle.buttonText}>Log in</Text>

@@ -12,7 +12,11 @@ export const styles = StyleSheet.create({
     padding: 10,
   },
   cameraButtonWrapper: {
-    padding: 10,
+    width: 150,
+    height: 150,
+    borderRadius: 75,
+    borderWidth: 1,
+    borderColor: commonStyles.lightGreyColor,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -25,23 +29,25 @@ export const styles = StyleSheet.create({
   imageTake: {
     width: 150,
     height: 150,
+    borderRadius: 75,
   },
   imageClose: {
     width: 26,
     height: 26,
   },
   closeButtonWrapper: {
+    padding: 10,
     position: 'absolute',
-    right: 75,
-    top: 0,
+    right: -5,
+    bottom: 0,
   },
   imageBack: {
     width: 15,
     height: 15,
   },
   imageCamera: {
-    width: 150,
-    height: 150,
+    width: 24,
+    height: 20,
   },
   textNavTitle: {
     color: '#fff',

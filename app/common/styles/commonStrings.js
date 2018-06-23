@@ -1,10 +1,13 @@
-export const tstReqReceived = "Test Request Received";
-export const drvToPat = "Driver Enroute to Patient";
-export const drvToLab = "Driver Enroute to Lab";
-export const tstInProg = "Testing in progress";
-export const tstComplete = "Tests Complete";
+export const TestRequestReceived = "Test Request Received";
+export const DriverEnrouteToPatient = "Driver Enroute to Patient";
+export const DriverEnrouteToLab = "Driver Enroute to Lab";
+export const TestingInProgress = "Testing in progress";
+export const TestsComplete = "Tests Complete";
 
-export const statusArray = [tstReqReceived, drvToPat, drvToLab, tstInProg, tstComplete];
+// export const statusArray = [TestRequestReceived, DriverEnrouteToPatient, DriverEnrouteToLab, TestingInProgress, TestsComplete];
+
+export const ActiveRequests = "Active Requests";
+export const CompletedRequests = "Completed Requests";
 
 export const symptom1 = "Fever over 100.4 F (38 C)";
 export const symptom2 = "Aching muscles, \nespecially in your back, arms and legs";
