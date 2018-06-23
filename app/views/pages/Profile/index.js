@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import {
-  StyleSheet,
   Text,
   View,
   Image,
@@ -21,8 +20,6 @@ import EmailValidator from 'email-validator';
 import * as commonStyles from '@common/styles/commonStyles';
 import globalStyle from '@common/styles/commonStyles';
 import { styles } from './styles';
-
-import {calculateYearDiff} from '@common/helpers/helpers';
 
 const cameraImage = require('@common/assets/imgs/ico_general_small_camera_grey.png');
 const greenTickImage = require('@common/assets/imgs/green_tick.png');
@@ -394,7 +391,7 @@ export default class Profile extends Component {
     
   onContinue() {
     const {firstName, lastName, phoneNumber, dateBirth, emailAddress} = this.state;
-    Actions.Payment({isNew: false});
+    Actions.pop();
   }
 
 
@@ -705,7 +702,7 @@ export default class Profile extends Component {
             onPress={()=>this.onContinue()}
             underlayColor={commonStyles.greenActiveBackgroundColor}
           >
-            <Text style={globalStyle.buttonText}>Continue</Text>
+            <Text style={globalStyle.buttonText}>Save</Text>
           </TouchableHighlight>
           :
           <TouchableHighlight 
@@ -713,7 +710,7 @@ export default class Profile extends Component {
             onPress={()=>this.onContinue()}
             underlayColor={commonStyles.lightGreyButtonActiveColor}
           >
-            <Text style={globalStyle.buttonText}>Continue</Text>
+            <Text style={globalStyle.buttonText}>Save</Text>
           </TouchableHighlight>
         }
       </View>

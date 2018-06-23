@@ -4,15 +4,11 @@ import {
   StatusBar,
   AsyncStorage,
 } from 'react-native';
-import PropTypes from 'prop-types';
 
 import { Actions } from 'react-native-router-flux';
 import SplashScreen from 'react-native-splash-screen';
 import AppIntroSlider from 'react-native-app-intro-slider';
 
-import * as commonStyles from '@common/styles/commonStyles';
-
-import globalStyle from '@common/styles/commonStyles';
 import { styles } from './styles';
 
 const tutorialImage1 = require('@common/assets/imgs/tutorials/tutorial_1.png');

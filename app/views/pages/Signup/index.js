@@ -1,13 +1,11 @@
 import React, { Component } from 'react';
 import {
-  StyleSheet,
   Text,
   View,
   Image,
   TouchableOpacity,
   TouchableHighlight,
   StatusBar,
-  KeyboardAvoidingView,
   Animated,
 } from 'react-native';
 import PropTypes from 'prop-types';
@@ -371,12 +369,7 @@ export default class Signup extends Component {
   onContinue() {
     const {firstName, lastName, phoneNumber, dateBirth, emailAddress} = this.state;
     let age = calculateYearDiff(dateBirth);
-    const param = {
-      firstName: firstName,
-      age: age,
-    };
-
-    Actions.Payment({selectedUser: param});
+    Actions.Main();
   }
 
 
@@ -649,7 +642,7 @@ export default class Signup extends Component {
           onPress={()=>this.validateInputs()}
           underlayColor={commonStyles.greenActiveBackgroundColor}
         >
-          <Text style={globalStyle.buttonText}>Continue</Text>
+          <Text style={globalStyle.buttonText}>Sign up</Text>
         </TouchableHighlight>
       </View>
     );

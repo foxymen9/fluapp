@@ -6,11 +6,7 @@
 
 import React, { Component } from 'react';
 import {
-  Platform,
   StyleSheet,
-  Text,
-  View,
-  Linking,
   AsyncStorage,
 } from 'react-native';
 
@@ -18,7 +14,7 @@ import { createStore, applyMiddleware, combineReducers } from 'redux';
 import { Provider } from 'react-redux';
 import thunk from 'redux-thunk';
 import promiseMiddleware from './common/middlewares/promiseMiddleware';
-import { Scene, Router, ActionConst, Modal, Stack, Actions } from 'react-native-router-flux';
+import { Scene, Router, Actions } from 'react-native-router-flux';
 import * as reducers from './reducers';
 
 const createStoreWithMiddleware = applyMiddleware(thunk, promiseMiddleware)(createStore);
@@ -34,7 +30,7 @@ import Main from './views/pages/Main';
 import Profile from './views/pages/Profile';
 import RequestDetail from './views/pages/RequestDetail';
 import NewRequest from './views/pages/NewRequest';
-import StartScreen from './startScreen';
+
 
 export default class App extends Component {
   constructor(props) {

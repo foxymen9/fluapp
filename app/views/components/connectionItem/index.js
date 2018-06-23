@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import {
-  StyleSheet,
   Text,
   View,
   Image,
@@ -8,12 +7,10 @@ import {
 } from 'react-native';
 
 import PropTypes from 'prop-types';
-import * as commonStyles from '@common/styles/commonStyles';
-import globalStyle from '@common/styles/commonStyles';
 import { styles } from './styles';
 
-
 const imageLogo = require('@common/assets/imgs/ico_general_logo_icon.png');
+
 
 export default class ConnectionItem extends Component {
 

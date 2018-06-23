@@ -10,8 +10,6 @@ import {
 } from 'react-native';
 import { Actions } from 'react-native-router-flux';
 
-import * as commonStyles from '@common/styles/commonStyles';
-import globalStyle from '@common/styles/commonStyles';
 import * as commonStrings from '@common/styles/commonStrings';
 import { styles } from './styles';
 

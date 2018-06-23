@@ -1,21 +1,16 @@
 import React, { Component } from 'react';
 import {
-  StyleSheet,
   Text,
   View,
   Image,
-  TouchableOpacity,  
 } from 'react-native';
 
 import PropTypes from 'prop-types';
-import * as commonStyles from '@common/styles/commonStyles';
-import globalStyle from '@common/styles/commonStyles';
 import { styles } from './styles';
-
-import {Switch} from '@common/components/switch/index';
 
 const greenTickImage = require('@common/assets/imgs/green_tick.png');
 const greyTickImage = require('@common/assets/imgs/gray_tick.png');
+
 
 export default class SymptomItem extends Component {
 

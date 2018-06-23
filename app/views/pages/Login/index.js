@@ -1,37 +1,31 @@
 import React, { Component } from 'react';
 import {
-  StyleSheet,
   Text,
   View,
   Image,
   TouchableOpacity,
   TouchableHighlight,
   StatusBar,
-  KeyboardAvoidingView,
   Animated,
   Keyboard,
 } from 'react-native';
 import PropTypes from 'prop-types';
 import { Actions } from 'react-native-router-flux';
-import { Dropdown } from 'react-native-material-dropdown';
 import { TextField } from 'react-native-material-textfield';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import EmailValidator from 'email-validator';
-import { TextInputMask } from 'react-native-masked-text';
 import SplashScreen from 'react-native-splash-screen'
 
 import * as commonStyles from '@common/styles/commonStyles';
 import globalStyle from '@common/styles/commonStyles';
 import { styles } from './styles';
 
-import {calculateYearDiff} from '@common/helpers/helpers';
-
 const backImage = require('@common/assets/imgs/ico_nav_back_white.png');
 const topLogoImage = require('@common/assets/imgs/login_logo.png');
 
 const displayNames = {'email': 'Email', 'password': 'Password'};
 const refNames = ['email', 'password'];
-const unrequiredRefNames = [];
+
 
 export default class Login extends Component {
 

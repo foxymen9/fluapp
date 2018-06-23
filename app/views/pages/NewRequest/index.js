@@ -1,23 +1,17 @@
 import React, { Component } from 'react';
 import {
-  StyleSheet,
   Text,
   View,
   Image,
   TouchableOpacity,
   TouchableHighlight,
   StatusBar,
-  Keyboard,
-  AsyncStorage,
-  FlatList,
+  ScrollView,
   SectionList,
 } from 'react-native';
 
 import { Actions } from 'react-native-router-flux';
-import { TextField } from 'react-native-material-textfield';
 import { Dropdown } from 'react-native-material-dropdown';
-import {Switch} from '@common/components/switch/index';
-
 
 import * as commonStyles from '@common/styles/commonStyles';
 import globalStyle from '@common/styles/commonStyles';
@@ -34,6 +28,7 @@ const doctorData = [
   { value: 'Michael Devellano' },
   { value: 'Petro Lysenko' },
 ];
+
 
 export default class NewRequest extends Component {
   
@@ -130,7 +125,7 @@ export default class NewRequest extends Component {
     return (
       <View style={styles.container}>
         <StatusBar barStyle='light-content'/>
-        <View style={styles.mainContentContainer}>
+        <ScrollView style={styles.mainContentContainer}>
           <View style={styles.textWrapper}>
             <Text style={styles.textPoint}>Request to: </Text>
           </View>
@@ -158,7 +153,7 @@ export default class NewRequest extends Component {
               },
             ]}
           />
-        </View>
+        </ScrollView>
         <TouchableHighlight
           style={[globalStyle.buttonGreenWrapper, globalStyle.buttonBottom]}
           onPress={this.onSubmit.bind(this)}
