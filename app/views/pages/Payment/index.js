@@ -7,7 +7,6 @@ import {
   TouchableHighlight,
   StatusBar,
 } from 'react-native';
-import PropTypes from 'prop-types';
 import { Actions } from 'react-native-router-flux';
 import ImagePicker from 'react-native-image-picker';
 
@@ -19,15 +18,13 @@ const backImage = require('@common/assets/imgs/ico_nav_back_white.png');
 const greenCameraImage = require('@common/assets/imgs/ico_general_small_camera_green.png');
 
 
-export default class VerifyAccount extends Component {
+export default class Payment extends Component {
   
   static propTypes = {
-    isNew: PropTypes.bool,
   }
 
 
   static defaultProps = {
-    isNew: true,
   }
 
 
@@ -79,8 +76,8 @@ export default class VerifyAccount extends Component {
   }
 
 
-  onDone() {
-    Actions.Main();
+  onSave() {
+    Actions.pop();
   }
 
 
@@ -160,10 +157,10 @@ export default class VerifyAccount extends Component {
         </View>
         <TouchableHighlight 
           style={[globalStyle.buttonGreenWrapper, globalStyle.buttonBottom]}
-          onPress={() => this.onDone()}
+          onPress={() => this.onSave()}
           underlayColor={commonStyles.greenActiveBackgroundColor}
         >
-          <Text style={globalStyle.buttonText}>{this.props.isNew ? "Sign up" : "Save"}</Text>
+          <Text style={globalStyle.buttonText}>Save</Text>
         </TouchableHighlight>
       </View>
     );

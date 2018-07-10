@@ -9,7 +9,8 @@ import {
   Animated,
   Keyboard,
 } from 'react-native';
-import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
+
 import { Actions } from 'react-native-router-flux';
 import { TextField } from 'react-native-material-textfield';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
@@ -18,7 +19,10 @@ import SplashScreen from 'react-native-splash-screen'
 
 import * as commonStyles from '@common/styles/commonStyles';
 import globalStyle from '@common/styles/commonStyles';
+import Spinner from '@common/components/spinner';
+import * as types from '@redux/actionTypes';
 import { styles } from './styles';
+import { signin } from '@redux/user/actions';
 
 const backImage = require('@common/assets/imgs/ico_nav_back_white.png');
 const topLogoImage = require('@common/assets/imgs/login_logo.png');
@@ -27,7 +31,7 @@ const displayNames = {'email': 'Email', 'password': 'Password'};
 const refNames = ['email', 'password'];
 
 
-export default class Login extends Component {
+class Login extends Component {
 
   static renderLeftButton(props) {
     return (
@@ -41,27 +45,13 @@ export default class Login extends Component {
   }
 
 
-  static renderTitle(props) {
-    return (
-      <Text style={styles.textNavTitle}>New Additional Account</Text>
-    );
-  }
-
-  static propTypes = {
-    selectedUserName: PropTypes.string,
-  }
-
-
-  static defaultProps = {
-    selectedUserName: '',
-  }
-
-
   constructor(props) {
     super(props);
 
     this.state = {
       keyboardHeight: new Animated.Value(0),
+      email: '',
+      password: '',
     };
 
     this.emailRef = this.updateRef.bind(this, 'email');
@@ -73,7 +63,6 @@ export default class Login extends Component {
     this._isMounted = true;
     this.keyboardWillShowSubscription = Keyboard.addListener('keyboardWillShow', (e) => this.keyboardWillShow(e));
     this.keyboardWillHideSubscription = Keyboard.addListener('keyboardWillHide', (e) => this.keyboardWillHide(e));
-    this.email.focus();
   }
 
 
@@ -83,6 +72,12 @@ export default class Login extends Component {
     this.keyboardWillHideSubscription.remove();
   }
 
+
+  componentWillReceiveProps(nextProps) {
+    if (this.props.status.type === types.USER_SIGNIN_REQUEST && nextProps.status.type === types.USER_SIGNIN_SUCCESS) {
+      Actions.Main();
+    }
+  }
 
   keyboardWillShow(e) {
     Animated.timing(
@@ -108,20 +103,17 @@ export default class Login extends Component {
   validateInputs() {
     let errors = {};
 
-    refNames
-      .forEach((name) => {
-        let value = this[name].value();
+    refNames.forEach((name) => {
+      let value = this[name].value();
 
-        if (!value) {
-          errors[name] = displayNames[name] + ' is required';
-        } else {
-          if ('email' === name) {
-            if (!EmailValidator.validate(value)) {
-              errors[name] = 'Invalid email';
-            }
-          }
+      if (!value) {
+        errors[name] = displayNames[name] + ' is required';
+      } else if ('email' === name) {
+        if (!EmailValidator.validate(value)) {
+          errors[name] = 'Invalid email';
         }
-      });
+      }
+    });
     this.setState({ errors });
     if (Object.keys(errors).length === 0 && errors.constructor === Object) {
       this.onSignIn();
@@ -147,16 +139,13 @@ export default class Login extends Component {
   }
 
   onChangeText(text) {
-    let { errors = {} } = this.state;
     refNames
       .map((name) => ({ name, ref: this[name] }))
       .forEach(({ name, ref }) => {
         if (ref.isFocused()) {
-          delete errors[name];
           this.setState({ [name]: text });
         }
       });
-    this.setState({ errors });
   }
 
   onForgotPassword() {
@@ -165,10 +154,13 @@ export default class Login extends Component {
 
 
   onChangePassword(text) {
+    this.setState({
+      password: text,
+    });
   }
 
   onSignIn() {
-    Actions.Main();
+    this.props.signin(this.state.email, this.state.password);
   }
 
   onSignup() {
@@ -177,12 +169,11 @@ export default class Login extends Component {
 
 
   render() {
-    let { errors = {}, ...data } = this.state;
-    let { email = '', } = data;
-
+    let { errors = {}, ...data} = this.state;
     return (
       <View style={styles.container}>
         <StatusBar barStyle='dark-content' />
+        <Spinner />
         <KeyboardAwareScrollView
           showsVerticalScrollIndicator={true}
         >
@@ -191,7 +182,7 @@ export default class Login extends Component {
             <Text style={styles.textDescription} numberOfLines={2}>Flu app</Text>
             <View style={styles.textWrapper}>
               <TextField
-                key='email'
+                // key='email'
                 ref={this.emailRef}
                 label={'Email address'}
                 keyboardType='email-address'
@@ -208,15 +199,15 @@ export default class Login extends Component {
                 errorColor={commonStyles.themeColor}
                 autoCorrect={false}
                 baseColor={commonStyles.lightGreyColor}
-                onChangeText={() => this.onChangeText()}
-                onFocus={() => this.onFocus()}
                 value={data.email}
+                onChangeText={this.onChangeText.bind(this)}
+                onFocus={() => this.onFocus()}
                 onSubmitEditing={() => this.password.focus()}
               />
             </View>
             <View style={styles.textWrapper}>
               <TextField
-                key='password'
+                // key='password'
                 ref={this.passwordRef}
                 label={'Password'}
                 fontSize={15}
@@ -232,8 +223,8 @@ export default class Login extends Component {
                 errorColor={commonStyles.themeColor}
                 autoCorrect={false}
                 baseColor={commonStyles.lightGreyColor}
-                value={this.state.password}
-                onChangeText={this.onChangePassword.bind(this)}
+                value={data.password}
+                onChangeText={this.onChangeText.bind(this)}
                 onFocus={() => this.onFocus()}
                 onSubmitEditing={() => this.validateInputs()}
               />
@@ -269,3 +260,18 @@ export default class Login extends Component {
     );
   }
 }
+
+
+const mapStateToProps = ({ status }) => {
+  return {
+    status,
+  }
+};
+
+
+const mapDispatchToProps = {
+  signin,
+};
+
+
+export default connect(mapStateToProps, mapDispatchToProps)(Login);

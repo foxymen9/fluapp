@@ -9,6 +9,7 @@ import {
   ScrollView,
   SectionList,
 } from 'react-native';
+import { connect } from 'react-redux';
 
 import { Actions } from 'react-native-router-flux';
 import { Dropdown } from 'react-native-material-dropdown';
@@ -17,20 +18,14 @@ import * as commonStyles from '@common/styles/commonStyles';
 import globalStyle from '@common/styles/commonStyles';
 import * as commonStrings from '@common/styles/commonStrings';
 import { styles } from './styles';
+import * as types from '@redux/actionTypes';
+import { getDoctorNames } from '@redux/request/actions';
 
 import ClickableSymptomItem from '@components/clickableSymptomItem';
-
 const backImage = require('@common/assets/imgs/ico_nav_back_white.png');
 
-const doctorData = [
-  { value: 'Ty' },
-  { value: 'Lisa Chu' },
-  { value: 'Michael Devellano' },
-  { value: 'Petro Lysenko' },
-];
 
-
-export default class NewRequest extends Component {
+class NewRequest extends Component {
   
   static renderLeftButton(props) {
     return (
@@ -49,7 +44,7 @@ export default class NewRequest extends Component {
         onPress={() => props.onRight()}
         style={styles.buttonWrapper}
       >
-        <Text style={styles.textBarItem}>Reset</Text>
+        <Text style={styles.textBarItem}>+</Text>
       </TouchableOpacity>
     );
   }
@@ -75,13 +70,34 @@ export default class NewRequest extends Component {
 
     this.state = {
       symptomList: symptomList,
-      doctorName: 'Ty',
+      doctorName: '',
+      doctorData: [],
     };
-    // this.onReset();
   }
 
   componentDidMount() {
-    Actions.refresh({onRight: this.onReset.bind(this)})
+    Actions.refresh({onRight: this.onAddInsuranceCard.bind(this)})
+    this.props.getDoctorNames();
+  }
+
+  componentWillReceiveProps(nextProps) {
+    if (this.props.status.type === types.GET_DOCTORS_REQUEST && nextProps.status.type === types.GET_DOCTORS_SUCCESS) {
+      const doctors = nextProps.request.doctors.records;
+      let doctorData = [];
+      doctors.forEach((doctor) => {
+        doctorData.push({
+          value: doctor.Name,
+        });
+      });
+      this.setState({
+        doctorData,
+        doctorName: doctorData[0].value,
+      });
+    }
+  }
+
+  onAddInsuranceCard() {
+    Actions.Payment();
   }
 
   onReset() {
@@ -121,7 +137,7 @@ export default class NewRequest extends Component {
   }
 
   render() {
-    const { symptomList, doctorName } = this.state;
+    const { symptomList, doctorName, doctorData } = this.state;
     return (
       <View style={styles.container}>
         <StatusBar barStyle='light-content'/>
@@ -165,3 +181,19 @@ export default class NewRequest extends Component {
     );
   }
 }
+
+
+const mapStateToProps = ({ status, request }) => {
+  return {
+    status,
+    request,
+  }
+};
+
+
+const mapDispatchToProps = {
+  getDoctorNames,
+};
+
+
+export default connect(mapStateToProps, mapDispatchToProps)(NewRequest);

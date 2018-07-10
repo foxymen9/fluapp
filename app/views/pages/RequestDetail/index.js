@@ -8,17 +8,20 @@ import {
   SectionList,
   ScrollView,
 } from 'react-native';
+import { connect } from 'react-redux';
 import { Actions } from 'react-native-router-flux';
 
 import * as commonStrings from '@common/styles/commonStrings';
 import { styles } from './styles';
+import * as types from '@redux/actionTypes';
+import { getDoctorDetail } from '@redux/request/actions';
 
 import SymptomItem from '@components/symptomItem';
 
 const backImage = require('@common/assets/imgs/ico_nav_back_white.png');
 
 
-export default class RequestDetail extends Component {
+class RequestDetail extends Component {
   
   static renderLeftButton(props) {
     return (
@@ -63,24 +66,10 @@ export default class RequestDetail extends Component {
 
 
   componentDidMount() {
-    Actions.refresh({onRight: this.onReset.bind(this)})
+    this.props.getDoctorDetail(this.props.selectedRequest.accountId);
   }
 
 
-  onReset() {
-    let { symptomList } = this.state;
-    symptomList.forEach(element => {
-      element.active = false;
-    });
-    
-    this.setState({symptomList});
-	}
-
-
-  onSubmit() {
-  }
-
-  
   renderSectionHeader(section) {
     return(
       <View style={styles.sectionHeaderContainer}>
@@ -99,7 +88,7 @@ export default class RequestDetail extends Component {
 
   render() {
     const { symptomList } = this.state;
-    const { selectedRequest } = this.props;
+    const { selectedRequest, request } = this.props;
     return (
       <View style={styles.container}>
         <StatusBar barStyle='light-content'/>
@@ -107,7 +96,7 @@ export default class RequestDetail extends Component {
           <View style={styles.mainContentContainer}>
             <View style={styles.textWrapper}>
               <Text style={styles.textPoint}>Requested to: </Text>
-              <Text style={styles.textName}>Dr.{selectedRequest.name}</Text>
+              <Text style={styles.textName}>{request.doctor.Name}</Text>
             </View>
             <View style={styles.textWrapper}>
               <Text style={styles.textPoint}>Status:</Text>
@@ -130,15 +119,24 @@ export default class RequestDetail extends Component {
               ]}
             />
           </View>
-          { /*<TouchableHighlight
-            style={[globalStyle.buttonGreenWrapper, globalStyle.buttonBottom]}
-            onPress={this.onSubmit.bind(this)}
-            underlayColor={commonStyles.greenActiveBackgroundColor}
-          >
-            <Text style={globalStyle.buttonText}></Text>
-          </TouchableHighlight>*/ }
         </ScrollView>
       </View>
     );
   }
 }
+
+
+const mapStateToProps = ({ status, request }) => {
+  return {
+    status,
+    request,
+  }
+};
+
+
+const mapDispatchToProps = {
+  getDoctorDetail,
+};
+
+
+export default connect(mapStateToProps, mapDispatchToProps)(RequestDetail);

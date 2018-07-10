@@ -1,9 +1,3 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- * @flow
- */
-
 import React, { Component } from 'react';
 import {
   StyleSheet,
@@ -14,8 +8,8 @@ import { createStore, applyMiddleware, combineReducers } from 'redux';
 import { Provider } from 'react-redux';
 import thunk from 'redux-thunk';
 import promiseMiddleware from './common/middlewares/promiseMiddleware';
-import { Scene, Router, Actions } from 'react-native-router-flux';
-import * as reducers from './reducers';
+import { Scene, Router, Actions, ActionConst } from 'react-native-router-flux';
+import * as reducers from './redux/reducers';
 
 const createStoreWithMiddleware = applyMiddleware(thunk, promiseMiddleware)(createStore);
 const reducer = combineReducers(reducers);
@@ -69,8 +63,8 @@ export default class App extends Component {
         <Scene key="Login" component={Login} hideNavBar />
         <Scene key="Tutorial" component={Tutorial} hideNavBar initial={this.state.isShowTutorial}/>
         <Scene key="Signup" component={Signup} />
-        <Scene key="Payment" component={Payment} />
         <Scene key="Main" component={Main} />
+        <Scene key="Payment" component={Payment} />
         <Scene key="Profile" component={Profile} />
         <Scene key="RequestDetail" component={RequestDetail} />
         <Scene key="NewRequest" component={NewRequest} />

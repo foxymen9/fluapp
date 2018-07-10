@@ -8,10 +8,13 @@ import {
   SectionList,
   ScrollView,
 } from 'react-native';
+import { connect } from 'react-redux';
 import { Actions } from 'react-native-router-flux';
 
 import * as commonStrings from '@common/styles/commonStrings';
 import { styles } from './styles';
+import * as types from '@redux/actionTypes';
+import { getRequests } from '@redux/request/actions';
 
 import ConnectionItem from '@components/connectionItem';
 
@@ -20,70 +23,8 @@ const inviteConnectionImage = require('@common/assets/imgs/ico_add_invite.png');
 const ico_nav_logout = require('@common/assets/imgs/ico_nav_logout.png');
 const ico_nav_other_appsettings = require('@common/assets/imgs/ico_nav_other_appsettings.png');
 
-const ico_avatar_allan = require('@common/assets/imgs/avatars/ico_avatar_allan.png');
-const ico_avatar_04 = require('@common/assets/imgs/avatars/ico_avatar_04.png');
-const ico_avatar_05 = require('@common/assets/imgs/avatars/ico_avatar_05.png');
-const ico_avatar_lisa = require('@common/assets/imgs/avatars/ico_avatar_lisa.png');
-const ico_avatar_07 = require('@common/assets/imgs/avatars/ico_avatar_07.png');
 
-const ico_avatar_james_lovett = require('@common/assets/imgs/avatars/ico_avatar_james_lovett.png');
-
-const recentConnections = [
-  {
-    avatar: ico_avatar_lisa,
-    name: 'Lisa Chu',
-    phoneNumber: 'lisachu@gmail.com',
-    amount: '',
-    active: false,
-    status: commonStrings.TestRequestReceived,
-  },
-  {
-    avatar: ico_avatar_james_lovett,
-    name: 'James Lovett',
-    phoneNumber: 'james_lovett@gmail.com',
-    amount: '',
-    active: false,
-    status: commonStrings.DriverEnrouteToPatient,
-  },
-  {
-    avatar: ico_avatar_07,
-    name: 'Ty',
-    phoneNumber: 'ty@cloudadvisory.io',
-    amount: '',
-    active: false,
-    status: commonStrings.DriverEnrouteToLab,
-  },
-];
-
-const friendsConections = [
-  {
-    avatar: ico_avatar_05,
-    name: 'Stephen Brown',
-    phoneNumber: 'orrin.swift@yahoo.com',
-    amount: '',
-    active: false,
-    status: commonStrings.TestRequestReceived,
-  },
-  {
-    avatar: ico_avatar_04,
-    name: 'Micheal Burton',
-    phoneNumber: 'chinooklover@hotmail.com',
-    amount: '',
-    active: false,
-    status: commonStrings.DriverEnrouteToPatient,
-  },
-  {
-    avatar: ico_avatar_allan,
-    name: 'Lisa Allan',
-    phoneNumber: 'lisa.allan@alexis.ca',
-    amount: '',
-    active: false,
-    status: commonStrings.DriverEnrouteToLab,
-  },
-];
-
-
-export default class Main extends Component {
+class Main extends Component {
 
   static renderLeftButton(props) {
     return (
@@ -118,13 +59,68 @@ export default class Main extends Component {
 
   constructor(props) {
     super(props);
+
+    this.state = {
+      activeRquests: [],
+      completedRequests: [],
+    }
   }
 
   componentDidMount() {
-    Actions.refresh({onLeft: this.onProfile.bind(this)})
-    Actions.refresh({onRight: this.onLogout.bind(this)})
+    Actions.refresh({onLeft: this.onProfile.bind(this)});
+    Actions.refresh({onRight: this.onLogout.bind(this)});
+    this.props.getRequests();
   }
 
+  componentWillReceiveProps(nextProps) {
+    if (this.props.status.type === types.GET_DOCTORS_REQUEST && nextProps.status.type === types.GET_DOCTORS_SUCCESS) {
+      const doctors = nextProps.request.doctors.records;
+      let doctorData = [];
+      doctors.forEach((doctor) => {
+        doctorData.push({
+          value: doctor.Name,
+        });
+      });
+      this.setState({
+        doctorData,
+        doctorName: doctorData[0].value,
+      });
+    }
+
+    if (this.props.status.type === types.GET_REQUESTS_REQUEST && nextProps.status.type === types.GET_REQUESTS_SUCCESS) {
+      const requests = nextProps.request.requests.records;
+      let activeRquests = [];
+      let completedRequests = [];
+      requests.forEach((request) => {
+        if (request.Status === 'New') {
+          activeRquests.push({
+            avatar: -1,
+            name: 'Case ' + request.CaseNumber,
+            phoneNumber: '',
+            amount: '',
+            active: false,
+            status: request.Status,
+            accountId: request.AccountId,
+          });
+        } else {
+          completedRequests.push({
+            avatar: -1,
+            name: 'Case ' + request.CaseNumber,
+            phoneNumber: '',
+            amount: '',
+            active: false,
+            status: request.Status,
+            accountId: request.AccountId,
+          });
+        }
+        console.log('AccountID : ', request.AccountId);
+      });
+      this.setState({
+        activeRquests,
+        completedRequests,
+      });
+    }
+  }
 
   onProfile() {
     Actions.Profile();
@@ -146,6 +142,7 @@ export default class Main extends Component {
       phoneNumber: item.phoneNumber,
       amount: item.active ? item.amount : 0,
       status: item.status,
+      accountId: item.accountId,
     };
     Actions.RequestDetail({selectedRequest: param});
   }
@@ -187,11 +184,11 @@ export default class Main extends Component {
             sections={[
               {
                 key: commonStrings.ActiveRequests,
-                data: recentConnections,
+                data: this.state.activeRquests,
               },
               {
                 key: commonStrings.CompletedRequests,
-                data: friendsConections,
+                data: this.state.completedRequests,
               },
             ]}
           />
@@ -200,3 +197,20 @@ export default class Main extends Component {
     );
   }
 }
+
+
+const mapStateToProps = ({ status, request, doctors }) => {
+  return {
+    status,
+    request,
+    doctors,
+  }
+};
+
+
+const mapDispatchToProps = {
+  getRequests,
+};
+
+
+export default connect(mapStateToProps, mapDispatchToProps)(Main);

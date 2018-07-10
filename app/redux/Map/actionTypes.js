@@ -1,1 +1,0 @@
-export const SAVE_MY_LOCATION = 'SAVE_MY_LOCATION';

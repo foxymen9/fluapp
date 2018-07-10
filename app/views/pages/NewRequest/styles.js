@@ -53,7 +53,7 @@ export const styles = StyleSheet.create({
   textBarItem: {
     color: '#fff',
     fontFamily: 'Averta',
-    fontSize: 16,
+    fontSize: 28,
     backgroundColor: 'transparent',
   },
   textDiscover: {

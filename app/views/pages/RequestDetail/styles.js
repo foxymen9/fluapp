@@ -151,11 +151,13 @@ export const styles = StyleSheet.create({
     backgroundColor: 'transparent',
   },
   textName: {
+    flex: 1,
     color: commonStyles.primaryGreenColor,
     fontFamily: 'Averta',
     fontSize: 20,
     fontWeight: 'bold',
     backgroundColor: 'transparent',
+    textAlign: 'right',
   },
   textPoint: {
     color: commonStyles.mainTextColor,
@@ -167,6 +169,7 @@ export const styles = StyleSheet.create({
   textWrapper: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    alignItems: 'center',
     paddingVertical: 16,
   },
 });

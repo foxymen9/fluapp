@@ -1,109 +1,33 @@
-import * as types from './actionTypes';
+import * as types from '../actionTypes';
+import axios from 'axios';
 
 const initialState = {
-  loading: false,
-  error:null,
-  userInfo: null,
-  userLogin: false,
-  menuIndex: 0,
-  verifyPhoneInfo: null,
-  verifyCodeInfo: null,
+  access_token: '',
+  instance_url: '',
+  id: '',
+  token_type: '',
+  issued_at: '',
+  signature: '',
 };
+
 
 export default function user(state = initialState, action = {}) {
   switch (action.type) {
-    /**************************/
-    /* My Location Information
-    /**************************/
-
-
-    /**************************/
-    /* Get API Token
-    /**************************/
-    case types.USER_SIGN_IN_REQUEST:
+    case types.USER_SIGNIN_REQUEST:
       return {
         ...state,
-        loading: true,
-        userInfo: null,
       };
-    case types.USER_SIGN_IN_SUCCESS:
+    case types.USER_SIGNIN_SUCCESS:
+      axios.defaults.baseURL = action.payload.instance_url;
+      axios.defaults.headers['Authorization'] = `${action.payload.token_type} ${action.payload.access_token}`;
       return {
         ...state,
-        loading: false,
-        userLogin: action.result.data.errors ? false : true,
-        userInfo: action.result.data,
+        ...action.payload,
       }
-    case types.USER_SIGN_IN_FAILED:
+    case types.USER_SIGNIN_FAILED:
       return {
         ...state,
-        loading: false,
-        userInfo: null,
-        error: action.error,
       };
-
-    /**************************/
-    /* Verify user phone number
-    /**************************/
-    case types.VERIFY_PHONE_REQUEST:
-    return {
-      ...state,
-      loading: true,
-      veryfyPhoneInfo: null,
-      verifyCodeInfo: null,
-    };
-  case types.VERIFY_PHONE_SUCCESS:
-    return {
-      ...state,
-      loading: false,
-      verifyPhoneInfo: action.result.data
-    }
-  case types.VERIFY_PHONE_FAILED:
-    return {
-      ...state,
-      loading: false,
-      verifyPhoneInfo: null,
-    };
-
-    /**************************/
-    /* Verify phone code
-    /**************************/
-    case types.VERIFY_CODE_REQUEST:
-    return {
-      ...state,
-      loading: true,
-      verifyCodeInfo: null,
-      verifyPhoneInfo: null,
-    };
-  case types.VERIFY_CODE_SUCCESS:
-    return {
-      ...state,
-      loading: false,
-      verifyCodeInfo: action.result.data
-    }
-  case types.VERIFY_CODE_FAILED:
-    return {
-      ...state,
-      loading: false,
-      verifyCodeInfo: null,
-    };
-
-    case types.USER_SIGN_OUT:
-      return {
-        ...state,
-        userLogin: false,
-      };
-
-    case types.USER_SIGN_UP:
-      return {
-        ...state,
-        userLogin: true,
-      };
-
-    case types.CHANGE_MENU:
-      return {
-        ...state,
-        menuIndex: action.data
-      }
     default:
       return state;
   }
