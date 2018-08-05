@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import { connect } from 'react-redux';
 
-import { Actions } from 'react-native-router-flux';
+import { Actions, ActionConst } from 'react-native-router-flux';
 import { Dropdown } from 'react-native-material-dropdown';
 
 import * as commonStyles from '@common/styles/commonStyles';
@@ -19,7 +19,11 @@ import globalStyle from '@common/styles/commonStyles';
 import * as commonStrings from '@common/styles/commonStrings';
 import { styles } from './styles';
 import * as types from '@redux/actionTypes';
-import { getDoctorNames } from '@redux/request/actions';
+import {
+  getDoctorNames,
+  getRequests,
+  createNewRequest,
+} from '@redux/request/actions';
 
 import ClickableSymptomItem from '@components/clickableSymptomItem';
 const backImage = require('@common/assets/imgs/ico_nav_back_white.png');
@@ -61,10 +65,11 @@ class NewRequest extends Component {
     super(props);
 
     let symptomList = [];
-    commonStrings.symptomArray.forEach(element => {
+    var keys = Object.keys(commonStrings.AllSymtoms);
+    keys.forEach(element => {
       let symptom = {};
       symptom.active = false;
-      symptom.name = element;
+      symptom.name = commonStrings.AllSymtoms[element];
       symptomList.push(symptom);
     });
 
@@ -77,7 +82,7 @@ class NewRequest extends Component {
 
   componentDidMount() {
     Actions.refresh({onRight: this.onAddInsuranceCard.bind(this)})
-    this.props.getDoctorNames();
+    // this.props.getDoctorNames();
   }
 
   componentWillReceiveProps(nextProps) {
@@ -93,6 +98,9 @@ class NewRequest extends Component {
         doctorData,
         doctorName: doctorData[0].value,
       });
+    } else if (this.props.status.type === types.CREATE_NEW_REQUEST_REQUEST && nextProps.status.type === types.CREATE_NEW_REQUEST_SUCCESS) {
+      Actions.pop();
+      this.props.getRequests();   
     }
   }
 
@@ -110,7 +118,12 @@ class NewRequest extends Component {
 	}
 
   onSubmit() {
-    Actions.pop();
+    let symptoms = {};
+    var keys = Object.keys(commonStrings.AllSymtoms);
+    keys.map((element, index) => {
+      symptoms[element] = this.state.symptomList[index].active;
+    });
+    this.props.createNewRequest(symptoms);
   }
 
   renderSectionHeader(section) {
@@ -137,12 +150,16 @@ class NewRequest extends Component {
   }
 
   render() {
-    const { symptomList, doctorName, doctorData } = this.state;
+    const { 
+      symptomList,
+      doctorName,
+      doctorData,
+    } = this.state;
     return (
       <View style={styles.container}>
         <StatusBar barStyle='light-content'/>
         <ScrollView style={styles.mainContentContainer}>
-          <View style={styles.textWrapper}>
+          {/* <View style={styles.textWrapper}>
             <Text style={styles.textPoint}>Request to: </Text>
           </View>
           <Dropdown
@@ -156,7 +173,7 @@ class NewRequest extends Component {
             labelTextStyle={globalStyle.tfLabelStyle}
             affixTextStyle={globalStyle.tfAffixStyle}
             onChangeText={(value) => this.setState({doctorName: value})}
-          />
+          /> */}
           <SectionList
             showsVerticalScrollIndicator={false}
             keyExtractor={(item, index) => index}
@@ -193,6 +210,8 @@ const mapStateToProps = ({ status, request }) => {
 
 const mapDispatchToProps = {
   getDoctorNames,
+  getRequests,
+  createNewRequest,
 };
 
 

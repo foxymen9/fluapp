@@ -3,7 +3,8 @@ import * as types from '../actionTypes';
 import { 
   API_GET_DOCTORS_URL,
   API_GET_RQUESTS_URL,
-  API_GET_DOCTOR_DETAIL_URL
+  API_GET_DOCTOR_DETAIL_URL,
+  API_CREATE_NEW_CASE_URL,
 } from '@common/styles/commonStrings';
 
 
@@ -29,7 +30,6 @@ export function getDoctorDetail(id) {
     const url = `${API_GET_DOCTOR_DETAIL_URL}${id}`
     axios.get(url)
     .then((response) => {
-      console.log('Response : ', response);
       if (response.status === 200) {
         dispatch({ type: types.GET_DOCTOR_DETAIL_SUCCESS, payload: response.data });
         return;
@@ -54,6 +54,22 @@ export function getRequests() {
     })
     .catch((error) => {
       dispatch({ type: types.GET_REQUESTS_FAILED, payload: error.response.data });
+    });
+  };
+}
+
+export function createNewRequest(data) {
+  return (dispatch) => {
+    dispatch({ type: types.CREATE_NEW_REQUEST_REQUEST });
+    axios.post(API_CREATE_NEW_CASE_URL, data)
+    .then((response) => {
+      if (response.status === 200 || response.status === 201) {
+        dispatch({ type: types.CREATE_NEW_REQUEST_SUCCESS, payload: response.data });
+        return;
+      }
+    })
+    .catch((error) => {
+      dispatch({ type: types.CREATE_NEW_REQUEST_FAILED, payload: error.response.data });
     });
   };
 }

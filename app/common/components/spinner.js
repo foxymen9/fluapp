@@ -41,7 +41,7 @@ class Spinner extends Component {
     animationOut: 'zoomOutUp',
     color: 'white',
     size: 'large', // 'normal',
-    overlayColor: 'rgba(0, 0, 0, 0.25)',
+    overlayColor: 'rgba(0, 0, 0, 0.05)',
     onSuccess: () => {},
     onError: () => {},
   };

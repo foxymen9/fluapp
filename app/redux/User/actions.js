@@ -3,6 +3,8 @@ import * as types from '../actionTypes';
 import { 
   CLIENT_ID,
   CLIENT_SECRET,
+  USERNAME,
+  PASSWORD,
   API_SIGNIN_URL,
 } from '@common/styles/commonStrings';
 
@@ -10,7 +12,7 @@ import {
 export function signin(email, password) {
   return (dispatch) => {
     dispatch({ type: types.USER_SIGNIN_REQUEST });
-    const url = `${API_SIGNIN_URL}?grant_type=password&client_id=${CLIENT_ID}&client_secret=${CLIENT_SECRET}&username=${email}&password=${password}`;
+    const url = `${API_SIGNIN_URL}?grant_type=password&client_id=${CLIENT_ID}&client_secret=${CLIENT_SECRET}&username=${USERNAME}&password=${PASSWORD}`;
     axios.post(url)
     .then((response) => {
       if (response.status === 200) {

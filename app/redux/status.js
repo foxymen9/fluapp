@@ -14,6 +14,7 @@ export default function status(state = initialState, action = {}) {
     case types.GET_DOCTORS_REQUEST:
     case types.GET_DOCTOR_DETAIL_REQUEST:
     case types.GET_REQUESTS_REQUEST:
+    case types.CREATE_NEW_REQUEST_REQUEST:
       return {
         ...state,
         type: action.type,
@@ -26,6 +27,7 @@ export default function status(state = initialState, action = {}) {
     case types.GET_DOCTORS_SUCCESS:
     case types.GET_DOCTOR_DETAIL_SUCCESS:
     case types.GET_REQUESTS_SUCCESS:
+    case types.CREATE_NEW_REQUEST_SUCCESS:
       return {
         ...state,
         type: action.type,
@@ -37,6 +39,7 @@ export default function status(state = initialState, action = {}) {
     case types.GET_DOCTORS_FAILED:
     case types.GET_DOCTOR_DETAIL_FAILED:
     case types.GET_REQUESTS_FAILED:
+    case types.CREATE_NEW_REQUEST_FAILED:
       return {
         ...state,
         type: action.type,

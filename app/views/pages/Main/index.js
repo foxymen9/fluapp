@@ -10,16 +10,15 @@ import {
 } from 'react-native';
 import { connect } from 'react-redux';
 import { Actions } from 'react-native-router-flux';
+// import FontAwesome from 'react-native-vector-icons/FontAwesome';
 
 import * as commonStrings from '@common/styles/commonStrings';
 import { styles } from './styles';
 import * as types from '@redux/actionTypes';
 import { getRequests } from '@redux/request/actions';
-
 import ConnectionItem from '@components/connectionItem';
 
 const inviteConnectionImage = require('@common/assets/imgs/ico_add_invite.png');
-
 const ico_nav_logout = require('@common/assets/imgs/ico_nav_logout.png');
 const ico_nav_other_appsettings = require('@common/assets/imgs/ico_nav_other_appsettings.png');
 
@@ -30,6 +29,7 @@ class Main extends Component {
     return (
       <TouchableOpacity 
         style={styles.buttonWrapper}
+        activeOpacity={0.7}
         onPress={() => props.onLeft()}
       >
         <Image source={ico_nav_other_appsettings} style={styles.imageAvatar} resizeMode="contain" />
@@ -42,6 +42,7 @@ class Main extends Component {
     return (
       <TouchableOpacity
         onPress={() => props.onRight()}
+        activeOpacity={0.7}
         style={styles.buttonWrapper}
       >
         <Image source={ico_nav_logout} style={styles.imageAvatar} resizeMode="contain" />
@@ -85,35 +86,22 @@ class Main extends Component {
         doctorData,
         doctorName: doctorData[0].value,
       });
-    }
-
-    if (this.props.status.type === types.GET_REQUESTS_REQUEST && nextProps.status.type === types.GET_REQUESTS_SUCCESS) {
+    } else if (this.props.status.type === types.GET_REQUESTS_REQUEST && nextProps.status.type === types.GET_REQUESTS_SUCCESS) {
       const requests = nextProps.request.requests.records;
       let activeRquests = [];
       let completedRequests = [];
       requests.forEach((request) => {
         if (request.Status === 'New') {
           activeRquests.push({
-            avatar: -1,
+            ...request,
             name: 'Case ' + request.CaseNumber,
-            phoneNumber: '',
-            amount: '',
-            active: false,
-            status: request.Status,
-            accountId: request.AccountId,
           });
         } else {
           completedRequests.push({
-            avatar: -1,
+            ...request,
             name: 'Case ' + request.CaseNumber,
-            phoneNumber: '',
-            amount: '',
-            active: false,
-            status: request.Status,
-            accountId: request.AccountId,
           });
         }
-        console.log('AccountID : ', request.AccountId);
       });
       this.setState({
         activeRquests,
@@ -131,20 +119,14 @@ class Main extends Component {
     Actions.popTo('Login');
   }
 
+
   onNewRequest() {
     Actions.NewRequest();
   }
 
 
   onSelectItem(item, index, section) {
-    const param = {
-      name: item.name,
-      phoneNumber: item.phoneNumber,
-      amount: item.active ? item.amount : 0,
-      status: item.status,
-      accountId: item.accountId,
-    };
-    Actions.RequestDetail({selectedRequest: param});
+    Actions.RequestDetail({selectedRequest: item});
   }
 
 

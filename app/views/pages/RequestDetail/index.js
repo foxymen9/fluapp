@@ -52,10 +52,11 @@ class RequestDetail extends Component {
     super(props);
 
     let symptomList = [];
-    commonStrings.symptomArray.forEach(element => {
+    var keys = Object.keys(commonStrings.AllSymtoms);
+    keys.forEach(element => {
       let symptom = {};
-      symptom.active = false;
-      symptom.name = element;
+      symptom.active = this.props.selectedRequest[element];
+      symptom.name = commonStrings.AllSymtoms[element];
       symptomList.push(symptom);
     });
 
@@ -66,7 +67,7 @@ class RequestDetail extends Component {
 
 
   componentDidMount() {
-    this.props.getDoctorDetail(this.props.selectedRequest.accountId);
+    // this.props.getDoctorDetail(this.props.selectedRequest.accountId);
   }
 
 
@@ -94,13 +95,13 @@ class RequestDetail extends Component {
         <StatusBar barStyle='light-content'/>
         <ScrollView>
           <View style={styles.mainContentContainer}>
-            <View style={styles.textWrapper}>
+            {/* <View style={styles.textWrapper}>
               <Text style={styles.textPoint}>Requested to: </Text>
               <Text style={styles.textName}>{request.doctor.Name}</Text>
-            </View>
+            </View> */}
             <View style={styles.textWrapper}>
               <Text style={styles.textPoint}>Status:</Text>
-              <Text style={styles.textName}>{selectedRequest.status}</Text>
+              <Text style={styles.textName}>{selectedRequest.Status}</Text>
             </View>
             <View style={styles.textWrapper}>
               <Text style={styles.textPoint}>Recommendation: </Text>

@@ -88,6 +88,9 @@
 		<string>Averta-SemiboldItalic.otf</string>
 		<string>Averta-Thin.otf</string>
 		<string>Averta-ThinItalic.otf</string>
+		<string>FontAwesome5_Brands.ttf</string>
+		<string>FontAwesome5_Regular.ttf</string>
+		<string>FontAwesome5_Solid.ttf</string>
 	</array>
 </dict>
 </plist>

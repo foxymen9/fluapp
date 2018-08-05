@@ -149,7 +149,6 @@ class Login extends Component {
   }
 
   onForgotPassword() {
-    console.log('forgot password');
   }
 
 
