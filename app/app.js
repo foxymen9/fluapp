@@ -16,6 +16,8 @@ const reducer = combineReducers(reducers);
 const store = createStoreWithMiddleware(reducer);
 
 import * as commonStyles from '@common/styles/commonStyles';
+import * as commonStrings from '@common/styles/commonStrings';
+
 import Tutorial from './views/pages/Tutorial';
 import Login from './views/pages/Login';
 import Signup from './views/pages/Signup';
@@ -37,7 +39,7 @@ export default class App extends Component {
   }
 
   componentDidMount() {
-    AsyncStorage.getItem('ShowedTutorial', (error, result) => {
+    AsyncStorage.getItem(commonStrings.ShowedTutorial, (error, result) => {
       if (result === 'true') {
         this.setState({
           initialized: true,
@@ -50,7 +52,6 @@ export default class App extends Component {
         });
       }
     });
-    
   }
 
   render() {

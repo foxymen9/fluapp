@@ -62,13 +62,6 @@ export const styles = StyleSheet.create({
     paddingHorizontal: 20,
     backgroundColor: '#fff',
   },
-  rowContainer: {
-    flexDirection: 'row',
-  },
-  dropDownTitle: {
-    width: 76,
-    marginRight: 20,
-  },
   textFieldInputContainerStyle: {
   },
   textFieldContainerStyle: {

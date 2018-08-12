@@ -10,17 +10,25 @@ import {
 } from 'react-native';
 import { connect } from 'react-redux';
 import { Actions } from 'react-native-router-flux';
-// import FontAwesome from 'react-native-vector-icons/FontAwesome';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 
 import * as commonStrings from '@common/styles/commonStrings';
 import { styles } from './styles';
 import * as types from '@redux/actionTypes';
-import { getRequests } from '@redux/request/actions';
+import { 
+  getRequests,
+} from '@redux/request/actions';
+import {
+  resetAuth2Info,
+  resetUserInfo,
+} from '@redux/user/actions';
+
 import ConnectionItem from '@components/connectionItem';
 
 const inviteConnectionImage = require('@common/assets/imgs/ico_add_invite.png');
-const ico_nav_logout = require('@common/assets/imgs/ico_nav_logout.png');
-const ico_nav_other_appsettings = require('@common/assets/imgs/ico_nav_other_appsettings.png');
+// const ico_nav_logout = require('@common/assets/imgs/ico_nav_logout.png');
+// const ico_nav_other_appsettings = require('@common/assets/imgs/ico_nav_other_appsettings.png');
 
 
 class Main extends Component {
@@ -32,7 +40,7 @@ class Main extends Component {
         activeOpacity={0.7}
         onPress={() => props.onLeft()}
       >
-        <Image source={ico_nav_other_appsettings} style={styles.imageAvatar} resizeMode="contain" />
+        <Ionicons name="md-settings" size={28} style={styles.iconNav} color={'#fff'} />
       </TouchableOpacity>
     );
   }
@@ -45,7 +53,7 @@ class Main extends Component {
         activeOpacity={0.7}
         style={styles.buttonWrapper}
       >
-        <Image source={ico_nav_logout} style={styles.imageAvatar} resizeMode="contain" />
+        <MaterialCommunityIcons name="logout" size={25} style={styles.iconNav} color={'#fff'} />
       </TouchableOpacity>
     );
   }
@@ -116,6 +124,8 @@ class Main extends Component {
 
 
   onLogout() {
+    this.props.resetAuth2Info();
+    this.props.resetUserInfo();
     Actions.popTo('Login');
   }
 
@@ -192,6 +202,8 @@ const mapStateToProps = ({ status, request, doctors }) => {
 
 const mapDispatchToProps = {
   getRequests,
+  resetAuth2Info,
+  resetUserInfo,
 };
 
 

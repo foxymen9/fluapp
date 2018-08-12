@@ -16,7 +16,7 @@ class Spinner extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      visible: this.props.visible || (this.props.status && this.props.status.spinning),
+      visible: this.props.visible,// || (this.props.status && this.props.status.spinning),
     };
   }
 
@@ -51,7 +51,7 @@ class Spinner extends Component {
       visible,
       status,
     } = nextProps;
-    const isVisible =  visible || (status && status.spinning);
+    const isVisible =  visible;// || (status && status.spinning);
     this.setState({ 
       visible: isVisible,
     });

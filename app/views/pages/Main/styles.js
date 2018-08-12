@@ -68,5 +68,9 @@ export const styles = StyleSheet.create({
     fontSize: 22,
     fontWeight: 'bold',
     backgroundColor: 'transparent',
-  },  
+  },
+  iconNav: {
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+  },
 });

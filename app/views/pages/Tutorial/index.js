@@ -10,6 +10,7 @@ import SplashScreen from 'react-native-splash-screen';
 import AppIntroSlider from 'react-native-app-intro-slider';
 
 import { styles } from './styles';
+import * as commonStrings from '@common/styles/commonStrings';
 
 const tutorialImage1 = require('@common/assets/imgs/tutorials/tutorial_1.png');
 const tutorialImage2 = require('@common/assets/imgs/tutorials/tutorial_2.png');
@@ -59,7 +60,7 @@ export default class Login extends Component {
 
 
   onSignIn() {
-    AsyncStorage.setItem('ShowedTutorial', 'true', () => {
+    AsyncStorage.setItem(commonStrings.ShowedTutorial, 'true', () => {
       Actions.Login();
     });
   }

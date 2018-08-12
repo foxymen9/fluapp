@@ -22,13 +22,18 @@ import globalStyle from '@common/styles/commonStyles';
 import Spinner from '@common/components/spinner';
 import * as types from '@redux/actionTypes';
 import { styles } from './styles';
-import { signin } from '@redux/user/actions';
+import { 
+  signin,
+  getAuth2,
+  setAuth2Info,
+  setUserInfo,
+} from '@redux/user/actions';
 
 const backImage = require('@common/assets/imgs/ico_nav_back_white.png');
 const topLogoImage = require('@common/assets/imgs/login_logo.png');
 
-const displayNames = {'email': 'Email', 'password': 'Password'};
-const refNames = ['email', 'password'];
+const displayNames = {'email': 'Email'};
+const refNames = ['email'];
 
 
 class Login extends Component {
@@ -50,12 +55,11 @@ class Login extends Component {
 
     this.state = {
       keyboardHeight: new Animated.Value(0),
-      email: '',
-      password: '',
+      email: 'test@test.com',
+      loading: false,
     };
 
     this.emailRef = this.updateRef.bind(this, 'email');
-    this.passwordRef = this.updateRef.bind(this, 'password');
   }
 
   componentDidMount() {
@@ -63,6 +67,8 @@ class Login extends Component {
     this._isMounted = true;
     this.keyboardWillShowSubscription = Keyboard.addListener('keyboardWillShow', (e) => this.keyboardWillShow(e));
     this.keyboardWillHideSubscription = Keyboard.addListener('keyboardWillHide', (e) => this.keyboardWillHide(e));
+    this.props.setAuth2Info();
+    this.props.setUserInfo();
   }
 
 
@@ -74,8 +80,24 @@ class Login extends Component {
 
 
   componentWillReceiveProps(nextProps) {
-    if (this.props.status.type === types.USER_SIGNIN_REQUEST && nextProps.status.type === types.USER_SIGNIN_SUCCESS) {
+    if (Actions.currentScene !== 'Login') {
+      return;
+    }
+    if (nextProps.status.type === types.USER_GET_AUTH2_REQUEST) {
+      this.setState({ loading: true });
+    } else if (this.props.status.type === types.USER_GET_AUTH2_REQUEST && nextProps.status.type === types.USER_GET_AUTH2_SUCCESS) {
+      this.props.signin(this.state.email);
+    } else if (this.props.status.type === types.USER_GET_AUTH2_REQUEST && nextProps.status.type === types.USER_GET_AUTH2_FAILED) {
+      this.setState({ loading: false });
+    } else if (this.props.status.type === types.USER_SIGNIN_REQUEST && nextProps.status.type === types.USER_SIGNIN_SUCCESS) {
+      this.setState({ loading: false });
       Actions.Main();
+    } else if (this.props.status.type === types.USER_SIGNIN_REQUEST && nextProps.status.type === types.USER_SIGNIN_FAILED) {
+      this.setState({ loading: false });
+    } else if (this.props.status.type !== types.SET_LOCAL_STORAGE_USER_INFO && nextProps.status.type === types.SET_LOCAL_STORAGE_USER_INFO) {
+      if (nextProps.user.Id) {
+        Actions.Main();
+      }
     }
   }
 
@@ -102,7 +124,6 @@ class Login extends Component {
 
   validateInputs() {
     let errors = {};
-
     refNames.forEach((name) => {
       let value = this[name].value();
 
@@ -148,18 +169,8 @@ class Login extends Component {
       });
   }
 
-  onForgotPassword() {
-  }
-
-
-  onChangePassword(text) {
-    this.setState({
-      password: text,
-    });
-  }
-
   onSignIn() {
-    this.props.signin(this.state.email, this.state.password);
+    this.props.getAuth2();
   }
 
   onSignup() {
@@ -172,7 +183,7 @@ class Login extends Component {
     return (
       <View style={styles.container}>
         <StatusBar barStyle='dark-content' />
-        <Spinner />
+        <Spinner visible={this.state.loading} />
         <KeyboardAwareScrollView
           showsVerticalScrollIndicator={true}
         >
@@ -181,7 +192,6 @@ class Login extends Component {
             <Text style={styles.textDescription} numberOfLines={2}>Flu app</Text>
             <View style={styles.textWrapper}>
               <TextField
-                // key='email'
                 ref={this.emailRef}
                 label={'Email address'}
                 keyboardType='email-address'
@@ -201,37 +211,8 @@ class Login extends Component {
                 value={data.email}
                 onChangeText={this.onChangeText.bind(this)}
                 onFocus={() => this.onFocus()}
-                onSubmitEditing={() => this.password.focus()}
-              />
-            </View>
-            <View style={styles.textWrapper}>
-              <TextField
-                // key='password'
-                ref={this.passwordRef}
-                label={'Password'}
-                fontSize={15}
-                fontFamily={'Averta'}
-                fontWeight={'bold'}
-                secureTextEntry={true}
-                returnKeyType='go'
-                tintColor = {commonStyles.primaryGreenColor}
-                titleTextStyle={globalStyle.tfTitleStyle}
-                labelTextStyle={globalStyle.tfLabelStyle}
-                affixTextStyle={globalStyle.tfAffixStyle}
-                error={errors.password}
-                errorColor={commonStyles.themeColor}
-                autoCorrect={false}
-                baseColor={commonStyles.lightGreyColor}
-                value={data.password}
-                onChangeText={this.onChangeText.bind(this)}
-                onFocus={() => this.onFocus()}
                 onSubmitEditing={() => this.validateInputs()}
               />
-              <TouchableOpacity
-                style = {styles.forgotWrapper}
-                onPress={() => this.onForgotPassword()}>
-                <Text style={styles.textForgot}>Forgot?</Text>
-              </TouchableOpacity>
             </View>
             <View style={styles.codeModeWrapper}>
               <TouchableOpacity
@@ -261,15 +242,19 @@ class Login extends Component {
 }
 
 
-const mapStateToProps = ({ status }) => {
+const mapStateToProps = ({ status, user }) => {
   return {
     status,
+    user,
   }
 };
 
 
 const mapDispatchToProps = {
   signin,
+  getAuth2,
+  setAuth2Info,
+  setUserInfo,
 };
 
 

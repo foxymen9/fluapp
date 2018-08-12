@@ -35,19 +35,6 @@ export default function request(state = initialState, action = {}) {
       return {
         ...state,
       };
-    case types.GET_DOCTOR_DETAIL_REQUEST:
-      return {
-        ...state,
-      };
-    case types.GET_DOCTOR_DETAIL_SUCCESS:
-      return {
-        ...state,
-        doctor: action.payload,
-      }
-    case types.GET_DOCTOR_DETAIL_FAILED:
-      return {
-        ...state,
-      };
     default:
       return state;
   }

@@ -84,7 +84,7 @@ export const styles = StyleSheet.create({
   },
   codeModeWrapper: {
     // flex: 1,
-    marginBottom: 10,
+    marginVertical: 20,
   },
   imageTop: {
     width: commonStyles.screenWidth,

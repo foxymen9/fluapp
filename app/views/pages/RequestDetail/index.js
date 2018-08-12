@@ -14,7 +14,6 @@ import { Actions } from 'react-native-router-flux';
 import * as commonStrings from '@common/styles/commonStrings';
 import { styles } from './styles';
 import * as types from '@redux/actionTypes';
-import { getDoctorDetail } from '@redux/request/actions';
 
 import SymptomItem from '@components/symptomItem';
 
@@ -67,7 +66,6 @@ class RequestDetail extends Component {
 
 
   componentDidMount() {
-    // this.props.getDoctorDetail(this.props.selectedRequest.accountId);
   }
 
 
@@ -136,7 +134,6 @@ const mapStateToProps = ({ status, request }) => {
 
 
 const mapDispatchToProps = {
-  getDoctorDetail,
 };
 
 
