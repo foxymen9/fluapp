@@ -12,6 +12,12 @@ export const styles = StyleSheet.create({
   buttonWrapper: {
     padding: 10,
   },
+  textBarItem: {
+    color: '#fff',
+    fontFamily: 'Averta',
+    fontSize: 28,
+    backgroundColor: 'transparent',
+  },
   cameraButtonWrapper: {
     width: 150,
     height: 150,

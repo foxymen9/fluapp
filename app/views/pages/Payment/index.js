@@ -8,17 +8,33 @@ import {
   StatusBar,
 } from 'react-native';
 import { Actions } from 'react-native-router-flux';
+import { connect } from 'react-redux';
+
 import ImagePicker from 'react-native-image-picker';
+import * as mime from 'react-native-mime-types';
+import _ from 'lodash';
 
 import * as commonStyles from '@common/styles/commonStyles';
 import globalStyle from '@common/styles/commonStyles';
 import { styles } from './styles';
+import * as types from '@redux/actionTypes';
+import Spinner from '@common/components/spinner';
+import { 
+  uploadAttachment,
+  getAttachmentBody,
+} from '@redux/user/actions';
+import { 
+  INSURANCE_CARD_FRONT_IMAGE,
+  INSURANCE_CARD_BACK_IMAGE,
+  USER_AVATAR_IMAGE,
+} from '@common/styles/commonStrings';
+
 
 const backImage = require('@common/assets/imgs/ico_nav_back_white.png');
 const greenCameraImage = require('@common/assets/imgs/ico_general_small_camera_green.png');
 
 
-export default class Payment extends Component {
+class Payment extends Component {
   
   static propTypes = {
   }
@@ -62,12 +78,22 @@ export default class Payment extends Component {
       selectedBackImageFile: null,
       currentFrontImage: greenCameraImage,
       currentBackImage: greenCameraImage,
+      loading: false,
     };
+    this.cards = [];
   }
 
 
   componentDidMount() {
     this._isMounted = true;
+    const {
+      attachments
+    } = this.props.user;
+    this.cards = _.filter(attachments, attachment => attachment.Description !== 'Avatar')
+    if (this.cards.length > 0) {
+      console.log('Attachement : ', this.cards[0]);
+      this.props.getAttachmentBody(this.cards[0].Id, this.cards[0].Description);
+    }
   }
 
 
@@ -75,6 +101,16 @@ export default class Payment extends Component {
     this._isMounted = false;
   }
 
+
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.status.type === types.UPLOAD_ATTACHMENT_REQUEST) {
+      this.setState({ loading: true });
+    } else if (this.props.status.type === types.UPLOAD_ATTACHMENT_REQUEST && nextProps.status.type === types.UPLOAD_ATTACHMENT_SUCCESS) {
+      this.setState({ loading: false });
+    } else if (this.props.status.type === types.UPLOAD_ATTACHMENT_REQUEST && nextProps.status.type === types.UPLOAD_ATTACHMENT_FAILED) {
+      this.setState({ loading: false });
+    } 
+  }
 
   onSave() {
     Actions.pop();
@@ -108,6 +144,14 @@ export default class Payment extends Component {
         });
 
         //do something here...
+        const mimeType = mime.lookup(response.uri);
+        let description = ''
+        if (selectedIndex === 0) {
+          description = INSURANCE_CARD_FRONT_IMAGE;
+        } else {
+          description = INSURANCE_CARD_BACK_IMAGE;
+        }
+        this.props.uploadAttachment(this.props.user.account.Id, response.fileName, mimeType, description, response.data);
       }
     });
   }
@@ -117,6 +161,7 @@ export default class Payment extends Component {
     return (
       <View style={styles.container}>
         <StatusBar barStyle='light-content' />
+        <Spinner visible={this.state.loading} />
         <View style={styles.mainContentContainer}>
           <View style={styles.cardContainer}>
             <TouchableHighlight
@@ -155,6 +200,13 @@ export default class Payment extends Component {
             </TouchableHighlight>
           </View>
         </View>
+        {/* 
+          <Image 
+            source={{uri: 'https://na54.salesforce.com/services/data/v43.0/sobjects/Attachment/00P0a00000cQ4BpEAK/Body'}} 
+            // source={{uri: 'https://na54.force.com/servlet/servlet.FileDownload?file=00P0a00000cQ4BpEAK&operationContext=S1'}} 
+            style={{width: 100, height: 100, backgroundColor: 'green'}}
+          /> 
+        */}
         <TouchableHighlight 
           style={[globalStyle.buttonGreenWrapper, globalStyle.buttonBottom]}
           onPress={() => this.onSave()}
@@ -166,3 +218,20 @@ export default class Payment extends Component {
     );
   }
 }
+
+
+const mapStateToProps = ({ status, user }) => {
+  return {
+    status,
+    user,
+  }
+};
+
+
+const mapDispatchToProps = {
+  uploadAttachment,
+  getAttachmentBody,
+};
+
+
+export default connect(mapStateToProps, mapDispatchToProps)(Payment);

@@ -25,6 +25,7 @@ import {
 } from '@redux/user/actions';
 
 import ConnectionItem from '@components/connectionItem';
+import Spinner from '@common/components/spinner';
 
 const inviteConnectionImage = require('@common/assets/imgs/ico_add_invite.png');
 // const ico_nav_logout = require('@common/assets/imgs/ico_nav_logout.png');
@@ -72,27 +73,20 @@ class Main extends Component {
     this.state = {
       activeRquests: [],
       completedRequests: [],
+      loading: false,
     }
   }
 
   componentDidMount() {
     Actions.refresh({onLeft: this.onProfile.bind(this)});
     Actions.refresh({onRight: this.onLogout.bind(this)});
-    this.props.getRequests();
+    this.props.getRequests(this.props.user.account.Id);
   }
 
   componentWillReceiveProps(nextProps) {
-    if (this.props.status.type === types.GET_DOCTORS_REQUEST && nextProps.status.type === types.GET_DOCTORS_SUCCESS) {
-      const doctors = nextProps.request.doctors.records;
-      let doctorData = [];
-      doctors.forEach((doctor) => {
-        doctorData.push({
-          value: doctor.Name,
-        });
-      });
+    if (nextProps.status.type === types.GET_REQUESTS_REQUEST) {
       this.setState({
-        doctorData,
-        doctorName: doctorData[0].value,
+        loading: true,
       });
     } else if (this.props.status.type === types.GET_REQUESTS_REQUEST && nextProps.status.type === types.GET_REQUESTS_SUCCESS) {
       const requests = nextProps.request.requests.records;
@@ -114,12 +108,17 @@ class Main extends Component {
       this.setState({
         activeRquests,
         completedRequests,
+        loading: false,
+      });
+    } else if (this.props.status.type === types.GET_REQUESTS_REQUEST && nextProps.status.type === types.GET_REQUESTS_FAILED) {
+      this.setState({
+        loading: false,
       });
     }
   }
 
   onProfile() {
-    Actions.Profile();
+    Actions.Signup({isSignupMode: false});
   }
 
 
@@ -163,6 +162,7 @@ class Main extends Component {
     return (
       <View style={styles.container}>
         <StatusBar barStyle='light-content' />
+        <Spinner visible={this.state.loading} />
         <ScrollView style={styles.mainContentContainer}>
           <TouchableOpacity onPress={this.onNewRequest.bind(this)} style={styles.inviteContainer}>
             <Image source={inviteConnectionImage} style={styles.imageInviteConnection} resizeMode="contain" />
@@ -175,11 +175,11 @@ class Main extends Component {
             renderItem={({item, index, section}) => this.renderItem(item, index, section)}
             sections={[
               {
-                key: commonStrings.ActiveRequests,
+                key: 'Active Requests',
                 data: this.state.activeRquests,
               },
               {
-                key: commonStrings.CompletedRequests,
+                key: 'Completed Requests',
                 data: this.state.completedRequests,
               },
             ]}
@@ -191,11 +191,11 @@ class Main extends Component {
 }
 
 
-const mapStateToProps = ({ status, request, doctors }) => {
+const mapStateToProps = ({ status, user, request }) => {
   return {
     status,
+    user,
     request,
-    doctors,
   }
 };
 

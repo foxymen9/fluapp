@@ -23,7 +23,6 @@ import Login from './views/pages/Login';
 import Signup from './views/pages/Signup';
 import Payment from './views/pages/Payment';
 import Main from './views/pages/Main';
-import Profile from './views/pages/Profile';
 import RequestDetail from './views/pages/RequestDetail';
 import NewRequest from './views/pages/NewRequest';
 
@@ -39,7 +38,7 @@ export default class App extends Component {
   }
 
   componentDidMount() {
-    AsyncStorage.getItem(commonStrings.ShowedTutorial, (error, result) => {
+    AsyncStorage.getItem(commonStrings.SHOW_TUTORIAL, (error, result) => {
       if (result === 'true') {
         this.setState({
           initialized: true,
@@ -66,7 +65,6 @@ export default class App extends Component {
         <Scene key="Signup" component={Signup} />
         <Scene key="Main" component={Main} />
         <Scene key="Payment" component={Payment} />
-        <Scene key="Profile" component={Profile} />
         <Scene key="RequestDetail" component={RequestDetail} />
         <Scene key="NewRequest" component={NewRequest} />
       </Scene>

@@ -60,7 +60,7 @@ export default class Login extends Component {
 
 
   onSignIn() {
-    AsyncStorage.setItem(commonStrings.ShowedTutorial, 'true', () => {
+    AsyncStorage.setItem(commonStrings.SHOW_TUTORIAL, 'true', () => {
       Actions.Login();
     });
   }

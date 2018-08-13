@@ -20,10 +20,10 @@ import * as commonStrings from '@common/styles/commonStrings';
 import { styles } from './styles';
 import * as types from '@redux/actionTypes';
 import {
-  getDoctorNames,
   getRequests,
   createNewRequest,
 } from '@redux/request/actions';
+import Spinner from '@common/components/spinner';
 
 import ClickableSymptomItem from '@components/clickableSymptomItem';
 const backImage = require('@common/assets/imgs/ico_nav_back_white.png');
@@ -38,17 +38,6 @@ class NewRequest extends Component {
         onPress={() => Actions.popTo('Main')}
       >
         <Image source={backImage} style={styles.imageClose} resizeMode="contain" />
-      </TouchableOpacity>
-    );
-  }
-
-  static renderRightButton(props) {
-    return (
-      <TouchableOpacity
-        onPress={() => props.onRight()}
-        style={styles.buttonWrapper}
-      >
-        <Text style={styles.textBarItem}>+</Text>
       </TouchableOpacity>
     );
   }
@@ -75,37 +64,23 @@ class NewRequest extends Component {
 
     this.state = {
       symptomList: symptomList,
-      doctorName: '',
-      doctorData: [],
+      loading: false,
     };
   }
 
   componentDidMount() {
-    Actions.refresh({onRight: this.onAddInsuranceCard.bind(this)})
-    // this.props.getDoctorNames();
   }
 
   componentWillReceiveProps(nextProps) {
-    if (this.props.status.type === types.GET_DOCTORS_REQUEST && nextProps.status.type === types.GET_DOCTORS_SUCCESS) {
-      const doctors = nextProps.request.doctors.records;
-      let doctorData = [];
-      doctors.forEach((doctor) => {
-        doctorData.push({
-          value: doctor.Name,
-        });
-      });
-      this.setState({
-        doctorData,
-        doctorName: doctorData[0].value,
-      });
+    if (nextProps.status.type === types.CREATE_NEW_REQUEST_REQUEST) {
+      this.setState({ loading: true });
     } else if (this.props.status.type === types.CREATE_NEW_REQUEST_REQUEST && nextProps.status.type === types.CREATE_NEW_REQUEST_SUCCESS) {
+      this.setState({ loading: false });
       Actions.pop();
-      this.props.getRequests();   
-    }
-  }
-
-  onAddInsuranceCard() {
-    Actions.Payment();
+      this.props.getRequests(this.props.user.account.Id);   
+    } else if (this.props.status.type === types.CREATE_NEW_REQUEST_REQUEST && nextProps.status.type === types.CREATE_NEW_REQUEST_FAILED) {
+      this.setState({ loading: false });
+    } 
   }
 
   onReset() {
@@ -123,7 +98,11 @@ class NewRequest extends Component {
     keys.map((element, index) => {
       symptoms[element] = this.state.symptomList[index].active;
     });
-    this.props.createNewRequest(symptoms);
+    const data = {
+      ...symptoms,
+      AccountId: this.props.user.account.Id,
+    }
+    this.props.createNewRequest(data);
   }
 
   renderSectionHeader(section) {
@@ -152,12 +131,11 @@ class NewRequest extends Component {
   render() {
     const { 
       symptomList,
-      doctorName,
-      doctorData,
     } = this.state;
     return (
       <View style={styles.container}>
         <StatusBar barStyle='light-content'/>
+        <Spinner visible={this.state.loading} />
         <ScrollView style={styles.mainContentContainer}>
           {/* <View style={styles.textWrapper}>
             <Text style={styles.textPoint}>Request to: </Text>
@@ -200,16 +178,16 @@ class NewRequest extends Component {
 }
 
 
-const mapStateToProps = ({ status, request }) => {
+const mapStateToProps = ({ status, user, request }) => {
   return {
     status,
+    user,
     request,
   }
 };
 
 
 const mapDispatchToProps = {
-  getDoctorNames,
   getRequests,
   createNewRequest,
 };

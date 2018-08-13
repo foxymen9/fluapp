@@ -26,6 +26,8 @@ import {
   checkEmail,
   signup,
   getUserDetail,
+  updateUserInfo,
+  getAttachments,
 } from '@redux/user/actions';
 import * as types from '@redux/actionTypes';
 
@@ -44,7 +46,7 @@ class Signup extends Component {
     return (
       <TouchableOpacity 
         style={styles.buttonWrapper}
-        onPress={() => Actions.popTo('Login')}
+        onPress={() => Actions.pop()}
       >
         <Image source={backImage} style={styles.imageBack} resizeMode="contain" />
       </TouchableOpacity>
@@ -52,44 +54,51 @@ class Signup extends Component {
   }
 
 
+  static renderRightButton(props) {
+    if (props.isSignupMode) {
+      return <View />
+    }
+    return (
+      <TouchableOpacity
+        onPress={() => props.onRight()}
+        style={styles.buttonWrapper}
+      >
+        <Text style={styles.textBarItem}>+</Text>
+      </TouchableOpacity>
+    );
+  }
+
+
   static renderTitle(props) {
     return (
-      <Text style={styles.textNavTitle}>Sign up</Text>
+      <Text style={styles.textNavTitle}>{props.isSignupMode ? 'Sign up' : 'My profile'}</Text>
     );
   }
 
 
   static propTypes = {
-    selectedUserName: PropTypes.string,
+    isSignupMode: PropTypes.bool,
   }
 
 
   static defaultProps = {
-    selectedUserName: '',
+    isSignupMode: true,
   }
 
 
   constructor(props) {
     super(props);
 
-    const arrayName = props.selectedUserName.split(" ");
-    let firstName = "";
-    let lastName = "";
-    if (arrayName.length > 0) {
-      firstName = arrayName[0];
-    }
-    if (arrayName.length > 1) {
-      lastName = arrayName[1];
-    }
-
     this.state = {
       selectedImageFile: null,
       currentImage: cameraImage,
-      firstName: firstName,
-      lastName: lastName,
+      firstName: '',
+      lastName: '',
       emailAddress: '',
+      phoneNumber: '',
       keyboardHeight: new Animated.Value(0),
       loading: false,
+      edited: props.isSignupMode ? true : false,
     };
 
     this.firstNameRef = this.updateRef.bind(this, 'firstName');
@@ -101,6 +110,34 @@ class Signup extends Component {
 
   componentDidMount() {
     this._isMounted = true;
+    if (!this.props.isSignupMode) {
+      Actions.refresh({
+        onRight: this.onAddInsuranceCard.bind(this)
+      });
+
+      this.props.getAttachments(this.props.user.account.Id);
+      const {
+        Name, 
+        Patient_Email__c,
+        Phone,
+      } = this.props.user.account;
+      
+      const arrayName = Name.split(' ');
+      let firstName = '';
+      let lastName = '';
+      if (arrayName.length > 0) {
+        firstName = arrayName[0];
+      }
+      if (arrayName.length > 1) {
+        lastName = arrayName[1];
+      }
+      this.setState({
+        firstName: firstName,
+        lastName: lastName,
+        emailAddress: Patient_Email__c,
+        phoneNumber: Phone,
+      })
+    }
   }
 
 
@@ -113,14 +150,27 @@ class Signup extends Component {
     if (Actions.currentScene !== 'Signup') {
       return;
     }
-    if (nextProps.status.type === types.USER_GET_AUTH2_REQUEST) {
+    if (nextProps.status.type === types.USER_GET_AUTH2_REQUEST || nextProps.status.type === types.CHECK_EMAIL_EXISTING_REQUEST || nextProps.status.type === types.GET_ATTACHMENTS_REQUEST) {
       this.setState({ loading: true });
     } else if (this.props.status.type === types.USER_GET_AUTH2_REQUEST && nextProps.status.type === types.USER_GET_AUTH2_SUCCESS) {
       this.props.checkEmail(this.state.emailAddress)
     } else if (this.props.status.type === types.USER_GET_AUTH2_REQUEST && nextProps.status.type === types.USER_GET_AUTH2_FAILED) {
       this.setState({ loading: false });
     } else if (this.props.status.type === types.CHECK_EMAIL_EXISTING_REQUEST && nextProps.status.type === types.CHECK_EMAIL_EXISTING_SUCCESS) {
-      this.props.signup(this.state.emailAddress, this.state.firstName + ' ' + this.state.lastName, this.state.phoneNumber);
+      if (this.props.isSignupMode) {
+        this.props.signup(
+          this.state.emailAddress,
+          this.state.firstName + ' ' + this.state.lastName,
+          this.state.phoneNumber
+        );
+      } else {
+        this.props.updateUserInfo(
+          this.props.user.account.Id,
+          this.state.emailAddress,
+          this.state.firstName + ' ' + this.state.lastName,
+          this.state.phoneNumber
+        );
+      }
     } else if (this.props.status.type === types.CHECK_EMAIL_EXISTING_REQUEST && nextProps.status.type === types.CHECK_EMAIL_EXISTING_FAILED) {
       this.setState({ loading: false });
     } else if (this.props.status.type === types.USER_SIGNUP_REQUEST && nextProps.status.type === types.USER_SIGNUP_SUCCESS) {
@@ -132,7 +182,21 @@ class Signup extends Component {
       Actions.Main();
     } else if (this.props.status.type === types.GET_USER_DETAIL_REQUEST && nextProps.status.type === types.GET_USER_DETAIL_FAILED) {
       this.setState({ loading: false });
-    } 
+    } else if (this.props.status.type === types.UPDATE_USER_DETAIL_REQUEST && nextProps.status.type === types.UPDATE_USER_DETAIL_SUCCESS) {
+      this.setState({ loading: false });
+      Actions.Main();
+    } else if (this.props.status.type === types.UPDATE_USER_DETAIL_REQUEST && nextProps.status.type === types.UPDATE_USER_DETAIL_FAILED) {
+      this.setState({ loading: false });
+    } else if (this.props.status.type === types.GET_ATTACHMENTS_REQUEST && nextProps.status.type === types.GET_ATTACHMENTS_SUCCESS) {
+      this.setState({ loading: false });
+    } else if (this.props.status.type === types.GET_ATTACHMENTS_REQUEST && nextProps.status.type === types.GET_ATTACHMENTS_FAILED) {
+      this.setState({ loading: false });
+    }
+  }
+
+
+  onAddInsuranceCard() {
+    Actions.Payment();
   }
 
 
@@ -252,9 +316,70 @@ class Signup extends Component {
     });
   }
 
-    
+  checkEdited() {
+    const {
+      Name, 
+      Patient_Email__c,
+      Phone,
+    } = this.props.user.account;
+
+    let edited = false;
+    const changedName = this.state.firstName + ' ' + this.state.lastName;
+
+    if (Name !== changedName) {
+      edited = true;
+    } else if (Patient_Email__c !== this.state.emailAddress) {
+      edited = true;
+    } else if (Phone !== this.state.phoneNumber) {
+      edited = true;
+    }
+    this.setState({
+      edited,
+    });
+  }
+
+  onChangeFirstName(value) {
+    this.setState({
+      firstName : value,
+    }, () => {
+      this.checkEdited();
+    });
+  }
+
+
+  onChangeLastName(value) {
+    this.setState({
+      lastName: value,
+    }, () => {
+      this.checkEdited();
+    });
+  }
+
+
+  onChangeEmail(value) {
+    this.setState({
+      emailAddress: value,
+    }, () => {
+      this.checkEdited();
+    });
+  }
+
+
+  onChangePhoneNumber(value) {
+    this.setState({
+      phoneNumber : value,
+    }, () => {
+      this.checkEdited();
+    });
+  }
+
+
   onContinue() {
-    this.props.getAuth2();
+    if (this.props.isSignupMode) {
+      this.props.getAuth2();
+    } else {
+      this.props.checkEmail(this.state.emailAddress)
+    }
   }
 
 
@@ -274,7 +399,7 @@ class Signup extends Component {
             value={firstName}
             returnKeyType={'next'}
             error={errors.firstName}
-            onChangeText={(value)=>this.setState({firstName : value})}
+            onChangeText={(value) => this.onChangeFirstName(value)}
             onFocus={() => this.onFocus()}
             onSubmitEditing={() => this.lastName.focus()}
 
@@ -300,7 +425,7 @@ class Signup extends Component {
             value={lastName}
             returnKeyType={'next'}
             error={errors.lastName}
-            onChangeText={(value)=>this.setState({lastName: value})}
+            onChangeText={(value) => this.onChangeLastName(value)}
             onFocus={() => this.onFocus()}
             onSubmitEditing={() => this.emailAddress.focus()}
 
@@ -328,7 +453,7 @@ class Signup extends Component {
             returnKeyType={'next'}
             error={errors.emailAddress}
             keyboardType={'email-address'}
-            onChangeText={(value)=>this.setState({emailAddress: value})}
+            onChangeText={(value) => this.onChangeEmail(value)}
             onFocus={() => this.onFocus()}
             onSubmitEditing={() => this.phoneNumber.focus()}
 
@@ -354,7 +479,7 @@ class Signup extends Component {
             label='Phone number (optional)'
             returnKeyType={'done'}
             keyboardType={'phone-pad'}
-            onChangeText={(value)=>this.setState({phoneNumber : value})}
+            onChangeText={(value) => this.onChangePhoneNumber(value)}
             onFocus={() => this.onFocus()}
             onSubmitEditing={() => this.validateInputs()}
 
@@ -375,17 +500,25 @@ class Signup extends Component {
             containerStyle={styles.textFieldContainerStyle}
           />
         </KeyboardAwareScrollView>
-        <TouchableHighlight 
-          style={[globalStyle.buttonGreenWrapper, globalStyle.buttonBottom]}
-          onPress={()=>this.validateInputs()}
-          underlayColor={commonStyles.greenActiveBackgroundColor}
-        >
-          <Text style={globalStyle.buttonText}>Sign up</Text>
-        </TouchableHighlight>
+        {
+          this.state.edited ?
+            <TouchableHighlight 
+              style={[globalStyle.buttonGreenWrapper, globalStyle.buttonBottom]}
+              onPress={()=>this.validateInputs()}
+              underlayColor={commonStyles.greenActiveBackgroundColor}
+            >
+              <Text style={globalStyle.buttonText}>{this.props.isSignupMode ? 'Sign up' : 'Save'}</Text>
+            </TouchableHighlight>
+          : 
+            <View style={[globalStyle.buttonGreyWrapper, globalStyle.buttonBottom]}>
+              <Text style={globalStyle.buttonText}>Save</Text>
+            </View>
+        }
       </View>
     );
   }
 }
+
 
 const mapStateToProps = ({ status, user }) => {
   return {
@@ -400,6 +533,8 @@ const mapDispatchToProps = {
   checkEmail,
   signup,
   getUserDetail,
+  updateUserInfo,
+  getAttachments,
 };
 
 

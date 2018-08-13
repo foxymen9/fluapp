@@ -95,7 +95,7 @@ class Login extends Component {
     } else if (this.props.status.type === types.USER_SIGNIN_REQUEST && nextProps.status.type === types.USER_SIGNIN_FAILED) {
       this.setState({ loading: false });
     } else if (this.props.status.type !== types.SET_LOCAL_STORAGE_USER_INFO && nextProps.status.type === types.SET_LOCAL_STORAGE_USER_INFO) {
-      if (nextProps.user.Id) {
+      if (nextProps.user.account.Id) {
         Actions.Main();
       }
     }

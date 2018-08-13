@@ -15,14 +15,25 @@ const initialState = {
   issued_at: '',
   signature: '',
 
-  account: {
+  account: {},
     // Id: null,
     // Name: null,
     // Phone: null,
     // Website: null,
     // PhotoUrl: null,
     // Patient_Email__c: '',
-  },
+  
+  attachments: [],
+    // Id: "00P0a00000cQ3aLEAS",
+    // ParentId: "0010a00001OufSTAAZ",
+    // Name: "Hummer_2010_Make_640.jpg",
+    // ContentType: "image/jpeg",
+    // BodyLength: 16022,
+    // Body: "/services/data/v43.0/sobjects/Attachment/00P0a00000cQ3aLEAS/Body",
+    // Description: "{\"mime_type\":\"image/jpeg\",\"image_category\":\"CardBack\"}"
+  userAvatar: null,
+  insuranceCardFront: null,
+  insuranceCardBack: null,
 };
 
 
@@ -35,7 +46,7 @@ export default function user(state = initialState, action = {}) {
     case types.USER_GET_AUTH2_SUCCESS:
       axios.defaults.baseURL = action.payload.instance_url;
       axios.defaults.headers['Authorization'] = `${action.payload.token_type} ${action.payload.access_token}`;
-      AsyncStorage.setItem(commonStrings.Auth2Info, JSON.stringify(action.payload), () => {
+      AsyncStorage.setItem(commonStrings.AUTH2_INFO, JSON.stringify(action.payload), () => {
       });
       return {
         ...state,
@@ -51,11 +62,11 @@ export default function user(state = initialState, action = {}) {
         ...state,
       };
     case types.USER_SIGNIN_SUCCESS:
-      AsyncStorage.setItem(commonStrings.UserInfo, JSON.stringify(action.payload.records[0]), () => {
+      AsyncStorage.setItem(commonStrings.USER_INFO, JSON.stringify(action.payload.records[0]), () => {
       });
       return {
         ...state,
-        account: action.payload[0],
+        account: action.payload.records[0],
       }
     case types.USER_SIGNIN_FAILED:
       return {
@@ -77,7 +88,7 @@ export default function user(state = initialState, action = {}) {
       }
 
     case types.RESET_LOCAL_STORAGE_AUTH2_INFO: 
-      AsyncStorage.removeItem(commonStrings.Auth2Info, (error) => {
+      AsyncStorage.removeItem(commonStrings.AUTH2_INFO, (error) => {
       });
       return {
         ...state,
@@ -96,7 +107,7 @@ export default function user(state = initialState, action = {}) {
       }
 
     case types.RESET_LOCAL_STORAGE_USER_INFO:
-      AsyncStorage.removeItem(commonStrings.UserInfo, (error) => {
+      AsyncStorage.removeItem(commonStrings.USER_INFO, (error) => {
       });
       return {
         ...state,
@@ -113,6 +124,46 @@ export default function user(state = initialState, action = {}) {
         account: action.payload,
       }
     case types.GET_USER_DETAIL_FAILED:
+      return {
+        ...state,
+      };
+
+    case types.GET_ATTACHMENTS_REQUEST:
+      return {
+        ...state,
+      };
+    case types.GET_ATTACHMENTS_SUCCESS:
+      return {
+        ...state,
+        attachments: action.payload.records,
+      }
+    case types.GET_ATTACHMENTS_FAILED:
+      return {
+        ...state,
+      };
+
+    case types.GET_ATTACHMENT_BODY_REQUEST:
+      return {
+        ...state,
+      };
+    case types.GET_ATTACHMENT_BODY_SUCCESS:
+      if (action.attachmentType === commonStrings.INSURANCE_CARD_FRONT_IMAGE) {
+        return {
+          ...state,
+          insuranceCardFront: action.payload,
+        }
+      } else if (action.attachmentType === commonStrings.INSURANCE_CARD_BACK_IMAGE) {
+        return {
+          ...state,
+          insuranceCardBack: action.payload,
+        }
+      } else if (action.attachmentType === commonStrings.USER_AVATAR_IMAGE) {
+        return {
+          ...state,
+          userAvatar: action.payload,
+        }
+      }
+    case types.GET_ATTACHMENT_BODY_FAILED:
       return {
         ...state,
       };
