@@ -21,6 +21,7 @@ import * as types from '@redux/actionTypes';
 import Spinner from '@common/components/spinner';
 import { 
   uploadAttachment,
+  getAttachments,
   getAttachmentBody,
 } from '@redux/user/actions';
 import { 
@@ -79,8 +80,11 @@ class Payment extends Component {
       currentFrontImage: greenCameraImage,
       currentBackImage: greenCameraImage,
       loading: false,
+      isSave: false,
     };
-    this.cards = [];
+    this.loadCards = [];
+    this.cardIndex = 0;
+    this.uploadCards = [];
   }
 
 
@@ -89,10 +93,10 @@ class Payment extends Component {
     const {
       attachments
     } = this.props.user;
-    this.cards = _.filter(attachments, attachment => attachment.Description !== 'Avatar')
-    if (this.cards.length > 0) {
-      console.log('Attachement : ', this.cards[0]);
-      this.props.getAttachmentBody(this.cards[0].Id, this.cards[0].Description);
+    this.cardIndex = 0;
+    this.loadCards = _.filter(attachments, attachment => attachment.Description !== USER_AVATAR_IMAGE)
+    if (this.loadCards.length > this.cardIndex) {
+      this.loadInsuranceCard(this.loadCards[this.cardIndex]);
     }
   }
 
@@ -103,17 +107,71 @@ class Payment extends Component {
 
 
   componentWillReceiveProps(nextProps) {
-    if (nextProps.status.type === types.UPLOAD_ATTACHMENT_REQUEST) {
+    if (nextProps.status.type === types.UPLOAD_ATTACHMENT_REQUEST || nextProps.status.type === types.GET_ATTACHMENT_BODY_REQUEST) {
       this.setState({ loading: true });
     } else if (this.props.status.type === types.UPLOAD_ATTACHMENT_REQUEST && nextProps.status.type === types.UPLOAD_ATTACHMENT_SUCCESS) {
-      this.setState({ loading: false });
+      this.cardIndex ++;
+      if (this.uploadCards.length > this.cardIndex) {
+        this.uploadAttachment();
+      } else {
+        this.props.getAttachments(this.props.user.account.Id);
+        Actions.pop();
+      }
     } else if (this.props.status.type === types.UPLOAD_ATTACHMENT_REQUEST && nextProps.status.type === types.UPLOAD_ATTACHMENT_FAILED) {
+      this.setState({ loading: false });
+    } else if (this.props.status.type === types.GET_ATTACHMENT_BODY_REQUEST && nextProps.status.type === types.GET_ATTACHMENT_BODY_SUCCESS) {
+      this.cardIndex ++;
+      if (this.loadCards.length > this.cardIndex) {
+        this.setState({ loading: true });
+        this.loadInsuranceCard(this.loadCards[this.cardIndex]);
+      } else {
+        this.setState({ loading: false });
+      }
+      this.setState((state) => {
+        if (nextProps.user.insuranceCardFront) {
+          state.currentFrontImage = {uri: nextProps.user.insuranceCardFront};
+        }
+        if (nextProps.user.insuranceCardBack) {
+          state.currentBackImage = {uri: nextProps.user.insuranceCardBack};
+        }
+        return state;
+      })
+    } else if (this.props.status.type === types.GET_ATTACHMENT_BODY_REQUEST && nextProps.status.type === types.GET_ATTACHMENT_BODY_FAILED) {
       this.setState({ loading: false });
     } 
   }
 
+
+  loadInsuranceCard(card) {
+    const {
+      instance_url,
+      token_type,
+      access_token,
+    } = this.props.user;
+    this.props.getAttachmentBody(card.Id, card.Description, instance_url, token_type, access_token);
+  }
+
+  uploadAttachment() {
+    const attachment = _.find(this.props.user.attachments, attachment => attachment.Description === this.uploadCards[this.cardIndex].description);
+    let Id = null;
+    if (attachment) {
+      Id = attachment.Id;
+    }
+    this.props.uploadAttachment(
+      Id,
+      this.props.user.account.Id, 
+      this.uploadCards[this.cardIndex].fileName, 
+      this.uploadCards[this.cardIndex].mimeType, 
+      this.uploadCards[this.cardIndex].description, 
+      this.uploadCards[this.cardIndex].data
+    );
+  }
+
   onSave() {
-    Actions.pop();
+    this.cardIndex = 0;
+    if (this.uploadCards.length > this.cardIndex) {
+      this.uploadAttachment();
+    }
   }
 
 
@@ -123,8 +181,7 @@ class Payment extends Component {
       storageOptions: {
         skipBackup: true,
       }
-    };
-    
+    };  
     ImagePicker.showImagePicker(options, (response) => {
       if (response.didCancel) {
         console.log('User cancelled image picker');
@@ -151,7 +208,21 @@ class Payment extends Component {
         } else {
           description = INSURANCE_CARD_BACK_IMAGE;
         }
-        this.props.uploadAttachment(this.props.user.account.Id, response.fileName, mimeType, description, response.data);
+        const card = {
+          fileName: response.fileName,
+          mimeType,
+          description,
+          data: response.data,
+        }
+        const index = _.findIndex(this.uploadCards, (o) => { return o.description == description });
+        if (index !== -1) {
+          this.uploadCards[index] = card;
+        } else {
+          this.uploadCards.push(card);
+        }
+        this.setState({
+          isSave: true,
+        });
       }
     });
   }
@@ -171,12 +242,12 @@ class Payment extends Component {
             >
               {
                 this.state.currentFrontImage != greenCameraImage ?
-                <Image source={this.state.currentFrontImage} style={styles.imageCard} resizeMode="cover" />
+                  <Image source={this.state.currentFrontImage} style={styles.imageCard} resizeMode="cover" />
                 :
-                <View style={styles.cameraWrapper}>
-                  <Image source={this.state.currentFrontImage} style={styles.imageCamera} resizeMode="contain" />
-                  <Text style={styles.textInstruction}>Front of card</Text>
-                </View>
+                  <View style={styles.cameraWrapper}>
+                    <Image source={this.state.currentFrontImage} style={styles.imageCamera} resizeMode="contain" />
+                    <Text style={styles.textInstruction}>Front of card</Text>
+                  </View>
               }
             </TouchableHighlight>
           </View>
@@ -189,27 +260,21 @@ class Payment extends Component {
               <View style={styles.cardWrapper}>
                 {
                   this.state.currentBackImage != greenCameraImage ?
-                  <Image source={this.state.currentBackImage} style={styles.imageCard} resizeMode="cover" />
+                    <Image source={this.state.currentBackImage} style={styles.imageCard} resizeMode="cover" />
                   :
-                  <View style={styles.cameraWrapper}>
-                    <Image source={this.state.currentBackImage} style={styles.imageCamera} resizeMode="contain" />
-                    <Text style={styles.textInstruction}>Back of card</Text>
-                  </View>
+                    <View style={styles.cameraWrapper}>
+                      <Image source={this.state.currentBackImage} style={styles.imageCamera} resizeMode="contain" />
+                      <Text style={styles.textInstruction}>Back of card</Text>
+                    </View>
                 }
               </View>
             </TouchableHighlight>
           </View>
         </View>
-        {/* 
-          <Image 
-            source={{uri: 'https://na54.salesforce.com/services/data/v43.0/sobjects/Attachment/00P0a00000cQ4BpEAK/Body'}} 
-            // source={{uri: 'https://na54.force.com/servlet/servlet.FileDownload?file=00P0a00000cQ4BpEAK&operationContext=S1'}} 
-            style={{width: 100, height: 100, backgroundColor: 'green'}}
-          /> 
-        */}
-        <TouchableHighlight 
-          style={[globalStyle.buttonGreenWrapper, globalStyle.buttonBottom]}
+        <TouchableHighlight
+          style={[this.state.isSave ? globalStyle.buttonGreenWrapper : globalStyle.buttonGreyWrapper, globalStyle.buttonBottom]}
           onPress={() => this.onSave()}
+          disabled={!this.state.isSave}
           underlayColor={commonStyles.greenActiveBackgroundColor}
         >
           <Text style={globalStyle.buttonText}>Save</Text>
@@ -230,6 +295,7 @@ const mapStateToProps = ({ status, user }) => {
 
 const mapDispatchToProps = {
   uploadAttachment,
+  getAttachments,
   getAttachmentBody,
 };
 

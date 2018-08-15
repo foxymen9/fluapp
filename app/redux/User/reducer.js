@@ -142,6 +142,19 @@ export default function user(state = initialState, action = {}) {
         ...state,
       };
 
+    case types.UPLOAD_ATTACHMENT_REQUEST:
+      return {
+        ...state,
+      };
+    case types.UPLOAD_ATTACHMENT_SUCCESS:
+      return {
+        ...state,
+      }
+    case types.UPLOAD_ATTACHMENT_FAILED:
+      return {
+        ...state,
+      };
+
     case types.GET_ATTACHMENT_BODY_REQUEST:
       return {
         ...state,

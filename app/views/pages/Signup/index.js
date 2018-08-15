@@ -500,20 +500,14 @@ class Signup extends Component {
             containerStyle={styles.textFieldContainerStyle}
           />
         </KeyboardAwareScrollView>
-        {
-          this.state.edited ?
-            <TouchableHighlight 
-              style={[globalStyle.buttonGreenWrapper, globalStyle.buttonBottom]}
-              onPress={()=>this.validateInputs()}
-              underlayColor={commonStyles.greenActiveBackgroundColor}
-            >
-              <Text style={globalStyle.buttonText}>{this.props.isSignupMode ? 'Sign up' : 'Save'}</Text>
-            </TouchableHighlight>
-          : 
-            <View style={[globalStyle.buttonGreyWrapper, globalStyle.buttonBottom]}>
-              <Text style={globalStyle.buttonText}>Save</Text>
-            </View>
-        }
+          <TouchableHighlight 
+            style={[this.state.edited ? globalStyle.buttonGreenWrapper : globalStyle.buttonGreyWrapper, globalStyle.buttonBottom]}
+            disabled={!this.state.edited}
+            onPress={()=>this.validateInputs()}
+            underlayColor={commonStyles.greenActiveBackgroundColor}
+          >
+            <Text style={globalStyle.buttonText}>{this.props.isSignupMode ? 'Sign up' : 'Save'}</Text>
+          </TouchableHighlight>
       </View>
     );
   }

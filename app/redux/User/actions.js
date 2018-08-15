@@ -1,6 +1,7 @@
 import {
   AsyncStorage,
 } from 'react-native';
+import RNFetchBlob from "react-native-fetch-blob";
 import axios from 'axios';
 import * as types from '../actionTypes';
 import { 
@@ -171,18 +172,33 @@ export function checkEmail(email) {
   };
 }
 
-export function uploadAttachment(parentId, Name, ContentType, Description, Body) {
+export function uploadAttachment(Id, parentId, Name, ContentType, Description, Body) {
   return (dispatch) => {
-    dispatch({ type: types.UPLOAD_ATTACHMENT_REQUEST });
-    const url = API_ATTACHMENT_URL;
-    const data = {
+    let url = API_ATTACHMENT_URL;
+    let data = {
       parentId,
       Name,
       ContentType,
       Description,
       Body,
     }
-    axios.post(url, data)
+    let method = 'post';
+    if (Id) {
+      url += Id;
+      method = 'patch';
+      data = {
+        Name,
+        ContentType,
+        Description,
+        Body,
+      }
+    }
+    dispatch({ type: types.UPLOAD_ATTACHMENT_REQUEST });
+    axios({
+      method,
+      url,
+      data,
+    })
     .then((response) => {
       if (response.status >= 200 && response.status <= 300) {
         dispatch({ type: types.UPLOAD_ATTACHMENT_SUCCESS, payload: response.data });
@@ -214,22 +230,39 @@ export function getAttachments(parentId) {
   };
 }
 
-export function getAttachmentBody(attachmentId, attachmentType) {
+export function getAttachmentBody(attachmentId, attachmentType, instanceUrl, tokenType, accessToken) {
   return (dispatch) => {
+    const fs = RNFetchBlob.fs;
+    let imagePath = null;
+    let contentType = '';
+    const url = `${instanceUrl}${API_ATTACHMENT_URL}${attachmentId}/Body`;
     dispatch({ type: types.GET_ATTACHMENT_BODY_REQUEST });
-    const url = `${API_ATTACHMENT_URL}${attachmentId}/Body`;
-    console.log('GET_ATTACHMENT_BODY_REQUEST : ', url);
-    axios.get(url, {responseType: 'blob'})
-    .then((response) => {
-      if (response.status >= 200 && response.status <= 300) {
-        console.log('GET_ATTACHMENT_BODY_SUCCESS : ', response);
-        dispatch({ type: types.GET_ATTACHMENT_BODY_SUCCESS, payload: response.data, attachmentType });
-        return;
-      }
+    
+    RNFetchBlob.config({
+      fileCache: true,      
     })
-    .catch((error) => {
-      console.log('GET_ATTACHMENT_BODY_FAILED : ', error.response);
-      dispatch({ type: types.GET_ATTACHMENT_BODY_FAILED, payload: error.response.data });
-    });
+      .fetch(
+        'get',
+        url,
+        { Authorization: `${tokenType} ${accessToken}`, }
+      )
+      // the image is now dowloaded to device's storage
+      .then(response => {
+        // the image path you can use it directly with Image component
+        imagePath = response.path();
+        contentType = response.info().headers['Content-Type'];
+        return response.readFile("base64");
+      })
+      .then(base64Data => {
+        // here's base64 encoded image
+        const image = `data:${contentType};base64,${base64Data}`;
+        dispatch({ type: types.GET_ATTACHMENT_BODY_SUCCESS, payload: image, attachmentType });
+        // remove the file from storage
+        return fs.unlink(imagePath);
+      })
+      .catch((error) => {
+        dispatch({ type: types.GET_ATTACHMENT_BODY_FAILED, payload: error.response.data });
+      });
+
   };
 }
