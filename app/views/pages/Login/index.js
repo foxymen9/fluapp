@@ -55,7 +55,7 @@ class Login extends Component {
 
     this.state = {
       keyboardHeight: new Animated.Value(0),
-      email: 'test@test.com',
+      email: '',
       loading: false,
     };
 
@@ -174,7 +174,7 @@ class Login extends Component {
   }
 
   onSignup() {
-    Actions.Signup();
+    Actions.Signup({isSignupMode: true});
   }
 
 
@@ -183,7 +183,7 @@ class Login extends Component {
     return (
       <View style={styles.container}>
         <StatusBar barStyle='dark-content' />
-        <Spinner visible={this.state.loading} />
+        <Spinner visible={this.state.loading} currentScreen='Login'/>
         <KeyboardAwareScrollView
           showsVerticalScrollIndicator={true}
         >

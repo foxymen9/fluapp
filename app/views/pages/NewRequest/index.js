@@ -135,7 +135,7 @@ class NewRequest extends Component {
     return (
       <View style={styles.container}>
         <StatusBar barStyle='light-content'/>
-        <Spinner visible={this.state.loading} />
+        <Spinner visible={this.state.loading} currentScreen='NewRequest'/>
         <ScrollView style={styles.mainContentContainer}>
           {/* <View style={styles.textWrapper}>
             <Text style={styles.textPoint}>Request to: </Text>

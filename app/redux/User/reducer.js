@@ -78,6 +78,18 @@ export default function user(state = initialState, action = {}) {
         ...state,
         account: {Id: action.payload.id},
       }
+    
+    case types.UPDATE_USER_DETAIL_SUCCESS: 
+      const account = {
+        ...state.account,
+        ...action.payload,
+      };
+      AsyncStorage.setItem(commonStrings.USER_INFO, JSON.stringify(account), () => {
+      });
+      return {
+        ...state,
+        account,
+      }
       
     case types.SET_LOCAL_STORAGE_AUTH2_INFO:
       axios.defaults.baseURL = action.payload.instance_url;

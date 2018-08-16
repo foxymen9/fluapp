@@ -101,10 +101,10 @@ class RequestDetail extends Component {
               <Text style={styles.textPoint}>Status:</Text>
               <Text style={styles.textName}>{selectedRequest.Status}</Text>
             </View>
-            <View style={styles.textWrapper}>
+            {/* <View style={styles.textWrapper}>
               <Text style={styles.textPoint}>Recommendation: </Text>
               <Text style={styles.textName}>FluApp</Text>
-            </View>
+            </View> */}
             <SectionList
               showsVerticalScrollIndicator={false}
               keyExtractor={(item, index) => index}

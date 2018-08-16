@@ -91,7 +91,7 @@ export function updateUserInfo(Id, email, name, phoneNumber) {
     axios.patch(url, data)
     .then((response) => {
       if (response.status >= 200 && response.status <= 300) {
-        dispatch({ type: types.UPDATE_USER_DETAIL_SUCCESS, payload: response.data });
+        dispatch({ type: types.UPDATE_USER_DETAIL_SUCCESS, payload: data });
         return;
       }
     })
@@ -172,6 +172,26 @@ export function checkEmail(email) {
   };
 }
 
+export function checkUpdateEmail(email) {
+  return (dispatch) => {
+    dispatch({ type: types.CHECK_EMAIL_EXISTING_REQUEST });
+    const url = `${API_SIGNIN_URL}'${email}'`;
+    axios.get(url)
+    .then((response) => {
+      if (response.status === 200) {
+        if (response.data.totalSize <= 1) {
+          dispatch({ type: types.CHECK_EMAIL_EXISTING_SUCCESS, payload: response.data });
+          return;
+        }
+        dispatch({ type: types.CHECK_EMAIL_EXISTING_FAILED, payload: [{message: 'The email address is existing.'}] });
+      }
+    })
+    .catch((error) => {
+      dispatch({ type: types.CHECK_EMAIL_EXISTING_FAILED, payload: error.response.data });
+    });
+  };
+}
+
 export function uploadAttachment(Id, parentId, Name, ContentType, Description, Body) {
   return (dispatch) => {
     let url = API_ATTACHMENT_URL;
@@ -218,13 +238,11 @@ export function getAttachments(parentId) {
     axios.get(url)
     .then((response) => {
       if (response.status >= 200 && response.status <= 300) {
-        console.log('GET_ATTACHMENTS_SUCCESS : ', response.data);
         dispatch({ type: types.GET_ATTACHMENTS_SUCCESS, payload: response.data });
         return;
       }
     })
     .catch((error) => {
-      console.log('GET_ATTACHMENTS_FAILED : ', error.response);
       dispatch({ type: types.GET_ATTACHMENTS_FAILED, payload: error.response.data });
     });
   };

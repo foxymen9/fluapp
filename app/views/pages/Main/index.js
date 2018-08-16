@@ -162,7 +162,7 @@ class Main extends Component {
     return (
       <View style={styles.container}>
         <StatusBar barStyle='light-content' />
-        <Spinner visible={this.state.loading} />
+        <Spinner visible={this.state.loading} currentScreen='Main'/>
         <ScrollView style={styles.mainContentContainer}>
           <TouchableOpacity onPress={this.onNewRequest.bind(this)} style={styles.inviteContainer}>
             <Image source={inviteConnectionImage} style={styles.imageInviteConnection} resizeMode="contain" />

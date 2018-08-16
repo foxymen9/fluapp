@@ -17,6 +17,8 @@ import { TextField } from 'react-native-material-textfield';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import EmailValidator from 'email-validator';
 import Spinner from '@common/components/spinner';
+import * as mime from 'react-native-mime-types';
+import _ from 'lodash';
 
 import * as commonStyles from '@common/styles/commonStyles';
 import globalStyle from '@common/styles/commonStyles';
@@ -24,12 +26,18 @@ import { styles } from './styles';
 import { 
   getAuth2,
   checkEmail,
+  checkUpdateEmail,
   signup,
   getUserDetail,
   updateUserInfo,
   getAttachments,
+  getAttachmentBody,
+  uploadAttachment,
 } from '@redux/user/actions';
 import * as types from '@redux/actionTypes';
+import { 
+  USER_AVATAR_IMAGE,
+} from '@common/styles/commonStrings';
 
 
 const cameraImage = require('@common/assets/imgs/ico_general_small_camera_grey.png');
@@ -105,6 +113,7 @@ class Signup extends Component {
     this.lastNameRef = this.updateRef.bind(this, 'lastName');
     this.emailAddressRef = this.updateRef.bind(this, 'emailAddress');
     this.phoneNumberRef = this.updateRef.bind(this, 'phoneNumber');
+    this.avatar = {};
   }
 
 
@@ -150,7 +159,11 @@ class Signup extends Component {
     if (Actions.currentScene !== 'Signup') {
       return;
     }
-    if (nextProps.status.type === types.USER_GET_AUTH2_REQUEST || nextProps.status.type === types.CHECK_EMAIL_EXISTING_REQUEST || nextProps.status.type === types.GET_ATTACHMENTS_REQUEST) {
+    if (nextProps.status.type === types.USER_GET_AUTH2_REQUEST 
+      || nextProps.status.type === types.CHECK_EMAIL_EXISTING_REQUEST 
+      || nextProps.status.type === types.GET_ATTACHMENTS_REQUEST
+      || nextProps.status.type === types.UPLOAD_ATTACHMENT_REQUEST
+      || nextProps.status.type === types.GET_ATTACHMENT_BODY_REQUEST) {
       this.setState({ loading: true });
     } else if (this.props.status.type === types.USER_GET_AUTH2_REQUEST && nextProps.status.type === types.USER_GET_AUTH2_SUCCESS) {
       this.props.checkEmail(this.state.emailAddress)
@@ -178,18 +191,57 @@ class Signup extends Component {
     } else if (this.props.status.type === types.USER_SIGNUP_REQUEST && nextProps.status.type === types.USER_SIGNUP_FAILED) {
       this.setState({ loading: false });
     } else if (this.props.status.type === types.GET_USER_DETAIL_REQUEST && nextProps.status.type === types.GET_USER_DETAIL_SUCCESS) {
-      this.setState({ loading: false });
-      Actions.Main();
+      if (_.isEmpty(this.avatar)) {
+        this.setState({ loading: false });
+        if (this.props.isSignupMode) {  
+          Actions.Main();
+        } else {
+          Actions.pop();
+        }
+      } else {
+        this.uploadAvatar(nextProps);
+      }
     } else if (this.props.status.type === types.GET_USER_DETAIL_REQUEST && nextProps.status.type === types.GET_USER_DETAIL_FAILED) {
       this.setState({ loading: false });
     } else if (this.props.status.type === types.UPDATE_USER_DETAIL_REQUEST && nextProps.status.type === types.UPDATE_USER_DETAIL_SUCCESS) {
-      this.setState({ loading: false });
-      Actions.Main();
+      if (_.isEmpty(this.avatar)) {
+        this.setState({ loading: false });
+        Actions.pop();
+      } else {
+        this.uploadAvatar(nextProps);
+      }
     } else if (this.props.status.type === types.UPDATE_USER_DETAIL_REQUEST && nextProps.status.type === types.UPDATE_USER_DETAIL_FAILED) {
       this.setState({ loading: false });
     } else if (this.props.status.type === types.GET_ATTACHMENTS_REQUEST && nextProps.status.type === types.GET_ATTACHMENTS_SUCCESS) {
-      this.setState({ loading: false });
+      const {
+        attachments
+      } = nextProps.user;
+      const avatar = _.find(attachments, attachment => attachment.Description === USER_AVATAR_IMAGE)
+      if (avatar) {
+        this.loadAvatar(avatar);
+      } else {
+        this.setState({ loading: false });
+      }
     } else if (this.props.status.type === types.GET_ATTACHMENTS_REQUEST && nextProps.status.type === types.GET_ATTACHMENTS_FAILED) {
+      this.setState({ loading: false });
+    } else if (this.props.status.type === types.UPLOAD_ATTACHMENT_REQUEST && nextProps.status.type === types.UPLOAD_ATTACHMENT_SUCCESS) {
+      this.setState({ loading: false });
+      if (this.props.isSignupMode) {  
+        Actions.Main();
+      } else {
+        Actions.pop();
+      }
+    } else if (this.props.status.type === types.UPLOAD_ATTACHMENT_REQUEST && nextProps.status.type === types.UPLOAD_ATTACHMENT_FAILED) {
+      this.setState({ loading: false });
+    } else if (this.props.status.type === types.GET_ATTACHMENT_BODY_REQUEST && nextProps.status.type === types.GET_ATTACHMENT_BODY_SUCCESS) {
+      this.setState({ loading: false });
+      this.setState((state) => {
+        if (nextProps.user.userAvatar) {
+          state.currentImage = {uri: nextProps.user.userAvatar};
+        }
+        return state;
+      })
+    } else if (this.props.status.type === types.GET_ATTACHMENT_BODY_REQUEST && nextProps.status.type === types.GET_ATTACHMENT_BODY_FAILED) {
       this.setState({ loading: false });
     }
   }
@@ -197,6 +249,16 @@ class Signup extends Component {
 
   onAddInsuranceCard() {
     Actions.Payment();
+  }
+
+
+  loadAvatar(avatar) {
+    const {
+      instance_url,
+      token_type,
+      access_token,
+    } = this.props.user;
+    this.props.getAttachmentBody(avatar.Id, avatar.Description, instance_url, token_type, access_token);
   }
 
 
@@ -252,13 +314,13 @@ class Signup extends Component {
   }
 
   
-  onRemoveImage() {
-    this._isMounted && this.setState((state) => {
-      state.currentImage = cameraImage;
-      state.selectedImageFile = null;
-      return state;
-    });
-  }
+  // onRemoveImage() {
+  //   this._isMounted && this.setState((state) => {
+  //     state.currentImage = cameraImage;
+  //     state.selectedImageFile = null;
+  //     return state;
+  //   });
+  // }
 
   
   get renderCameraImage() {
@@ -274,7 +336,7 @@ class Signup extends Component {
             resizeMode="cover" 
           />
 
-          {
+          {/* {
             this.state.currentImage !== cameraImage ?
               <TouchableOpacity 
                 style={styles.closeButtonWrapper}
@@ -284,13 +346,28 @@ class Signup extends Component {
               </TouchableOpacity>
             : 
               null
-          }
+          } */}
         </TouchableOpacity> 
       </View>
     );    
   }
 
-  
+  uploadAvatar(props) {
+    const avatar = _.find(props.user.attachments, attachment => attachment.Description === USER_AVATAR_IMAGE);
+    let Id = null;
+    if (avatar) {
+      Id = avatar.Id;
+    }
+    this.props.uploadAttachment(
+      Id,
+      props.user.account.Id, 
+      this.avatar.fileName, 
+      this.avatar.mimeType, 
+      this.avatar.description, 
+      this.avatar.data,
+    );
+  }
+
   onOpenCamera() {    
     const  options = {
       quality: 1.0,
@@ -311,7 +388,17 @@ class Signup extends Component {
           state.selectedImageFile = response;
           return state;
         });
-        //do something here...
+        const mimeType = mime.lookup(response.uri);
+        const description = USER_AVATAR_IMAGE;
+        this.avatar = {
+          fileName: response.fileName,
+          mimeType,
+          description,
+          data: response.data,
+        }
+        this.setState({
+          edited: true,
+        });
       }
     });
   }
@@ -378,7 +465,7 @@ class Signup extends Component {
     if (this.props.isSignupMode) {
       this.props.getAuth2();
     } else {
-      this.props.checkEmail(this.state.emailAddress)
+      this.props.checkUpdateEmail(this.state.emailAddress)
     }
   }
 
@@ -390,7 +477,7 @@ class Signup extends Component {
     return (
       <View style={styles.container}>
         <StatusBar barStyle='light-content' />
-        <Spinner visible={this.state.loading} />
+        <Spinner visible={this.state.loading} currentScreen='Signup'/>
         <KeyboardAwareScrollView style={styles.mainContentContainer}>
           {this.renderCameraImage}
           <TextField
@@ -525,10 +612,13 @@ const mapStateToProps = ({ status, user }) => {
 const mapDispatchToProps = {
   getAuth2,
   checkEmail,
+  checkUpdateEmail,
   signup,
   getUserDetail,
   updateUserInfo,
   getAttachments,
+  getAttachmentBody,
+  uploadAttachment,
 };
 
 

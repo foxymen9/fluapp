@@ -151,6 +151,7 @@ class Payment extends Component {
     this.props.getAttachmentBody(card.Id, card.Description, instance_url, token_type, access_token);
   }
 
+  
   uploadAttachment() {
     const attachment = _.find(this.props.user.attachments, attachment => attachment.Description === this.uploadCards[this.cardIndex].description);
     let Id = null;
@@ -163,7 +164,7 @@ class Payment extends Component {
       this.uploadCards[this.cardIndex].fileName, 
       this.uploadCards[this.cardIndex].mimeType, 
       this.uploadCards[this.cardIndex].description, 
-      this.uploadCards[this.cardIndex].data
+      this.uploadCards[this.cardIndex].data,
     );
   }
 
@@ -232,7 +233,7 @@ class Payment extends Component {
     return (
       <View style={styles.container}>
         <StatusBar barStyle='light-content' />
-        <Spinner visible={this.state.loading} />
+        <Spinner visible={this.state.loading} currentScreen='Payment'/>
         <View style={styles.mainContentContainer}>
           <View style={styles.cardContainer}>
             <TouchableHighlight

@@ -4,10 +4,16 @@ import {
   View,
   ActivityIndicator,
   Alert,
+  AsyncStorage,
 } from 'react-native';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
+import { Actions } from 'react-native-router-flux';
 import Modal from "react-native-modal";
+
+
+import * as commonStrings from '@common/styles/commonStrings';
+
 
 const SIZES = ['small', 'normal', 'large'];
 const animationTiming = 300;
@@ -22,6 +28,7 @@ class Spinner extends Component {
 
   static propTypes = {
     visible: PropTypes.bool,
+    currentScreen: PropTypes.string.isRequired,
     status: PropTypes.object,
     cancelable: PropTypes.bool,
     animationIn: PropTypes.string,
@@ -35,6 +42,7 @@ class Spinner extends Component {
 
   static defaultProps = {
     visible: false,
+    currentScreen: '',
     status: {},
     cancelable: false,
     animationIn: 'zoomInDown',
@@ -55,6 +63,10 @@ class Spinner extends Component {
     this.setState({ 
       visible: isVisible,
     });
+
+    if (Actions.currentScene !== this.props.currentScreen) {
+      return;
+    }
 
     if (!isVisible) {
       if (status && status.error && (Object.keys(this.props.status.error).length === 0) && (Object.keys(status.error).length > 0)) {
@@ -85,6 +97,14 @@ class Spinner extends Component {
     if (Object.keys(errors).length) {
       const errorKeys = Object.keys(errors)
       if (errorKeys.length > 0) {
+        if (errors.errorCode === 'INVALID_SESSION_ID') {
+          AsyncStorage.removeItem(commonStrings.USER_INFO, (error) => {
+          });    
+          AsyncStorage.removeItem(commonStrings.AUTH2_INFO, (error) => {
+          });
+          Actions.popTo('Login');
+          return;
+        }
         const message = errors['error_description'] || errors['message'];
         setTimeout(() => {
           Alert.alert('Error', message, 
