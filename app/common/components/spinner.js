@@ -69,10 +69,10 @@ class Spinner extends Component {
     }
 
     if (!isVisible) {
-      if (status && status.error && (Object.keys(this.props.status.error).length === 0) && (Object.keys(status.error).length > 0)) {
+      if (status && status.error && (Object.keys(nextProps.status.error).length === 0) && (Object.keys(status.error).length > 0)) {
         this.showError(status.error);
         return;
-      } else if (status && status.success && (Object.keys(this.props.status.success).length === 0) && (Object.keys(status.success).length > 0)) {
+      } else if (status && status.success && (Object.keys(nextProps.status.success).length === 0) && (Object.keys(status.success).length > 0)) {
         this.showSuccess(status.success);
         return;
       } else {

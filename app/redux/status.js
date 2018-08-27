@@ -3,7 +3,7 @@ import * as types from './actionTypes';
 const initialState = {
   type: '',
   error: {},
-  success: '',
+  success: {},
   spinning: false,
 };
 
